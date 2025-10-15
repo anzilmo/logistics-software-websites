@@ -45,6 +45,44 @@
     </table>
 
     <hr>
+    <h3>Consolidations</h3>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>User</th>
+                <th>Shipments Count</th>
+                <th>Total CBM</th>
+                <th>Chargeable Weight</th>
+                <th>Price</th>
+                <th>Status</th>
+                <th>Created At</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for consolidation in consolidations %}
+            <tr>
+                <td>{{ consolidation.id }}</td>
+                <td>{{ consolidation.user.username }}</td>
+                <td>{{ consolidation.shipments_count }}</td>
+                <td>{{ consolidation.total_cbm }}</td>
+                <td>{{ consolidation.chargeable_weight }}</td>
+                <td>{{ consolidation.price }} {{ consolidation.currency }}</td>
+                <td>{{ consolidation.get_status_display }}</td>
+                <td>{{ consolidation.created_at|date:"Y-m-d H:i" }}</td>
+                <td>
+                    <a href="{% url 'customer:console_details_view' consolidation.id %}" class="btn btn-info btn-sm">View</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="8" class="text-center">No consolidations found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <hr>
     <h3>Console Shipment List</h3>
     <table class="table table-striped">
         <thead>
@@ -72,6 +110,7 @@
             {% endfor %}
         </tbody>
     </table>
+
 </div>
 
 {% endblock %}

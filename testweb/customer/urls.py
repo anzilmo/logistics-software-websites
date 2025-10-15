@@ -60,7 +60,10 @@ urlpatterns = [
     path("console/", views.console_list, name="console_list"),
     path("console/action/create/<int:shipment_id>/", views.console_action_create, name="console_action_create"),
     path("console/consolidation/quote/", views.consolidation_quote, name="consolidation_quote"),
-    path("console/details/", views.console_details, name="console_details"),
+    path("console/details/", views.console_details_create, name="console_details"),
+    
+    
+    path("console/<int:consolidation_id>/", views.console_details_view, name="console_details_view"),
     
     
    

@@ -1,0 +1,70 @@
+{% load humanize %}
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Consolidation details</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="p-4">
+  <div class="container">
+    <a href="{% url 'customer:console_list' %}">&larr; Back to console</a>
+    <h3 class="mt-2">Consolidation details</h3>
+
+    {% if consolidation %}
+      <p><strong>Consolidation ID:</strong> {{ consolidation.id }}</p>
+      <p><strong>Status:</strong> {{ consolidation.get_status_display }}</p>
+      <p><strong>Total CBM:</strong> {{ consolidation.total_cbm }}</p>
+      <p><strong>Total Volume Weight:</strong> {{ consolidation.total_volume_weight }} kg</p>
+      <p><strong>Total Gross Weight:</strong> {{ consolidation.total_gross_weight }} kg</p>
+      <p><strong>Chargeable Weight:</strong> {{ consolidation.chargeable_weight }} kg</p>
+      <p><strong>Price:</strong> {{ consolidation.price }} {{ consolidation.currency }}</p>
+      <p><strong>Shipments Count:</strong> {{ consolidation.shipments_count }}</p>
+      {% if consolidation.selected_courier %}
+        <p><strong>Selected Courier:</strong> {{ consolidation.selected_courier.name }}</p>
+      {% endif %}
+
+      {% if delivery_address %}
+        <h4>Delivery Address</h4>
+        <p><strong>Recipient:</strong> {{ delivery_address.recipient_name }}</p>
+        <p><strong>Address:</strong> {{ delivery_address.address_line1 }}{% if delivery_address.address_line2 %}, {{ delivery_address.address_line2 }}{% endif %}</p>
+        <p><strong>City:</strong> {{ delivery_address.city }}, {{ delivery_address.state }} {{ delivery_address.postal_code }}</p>
+        <p><strong>Country:</strong> {{ delivery_address.country }}</p>
+        {% if delivery_address.phone %}
+          <p><strong>Phone:</strong> {{ delivery_address.phone }}</p>
+        {% endif %}
+      {% endif %}
+
+      {% if payment %}
+        <h4>Payment Status</h4>
+        <p><strong>Amount:</strong> {{ payment.amount }} {{ payment.currency }}</p>
+        <p><strong>Status:</strong> {{ payment.get_status_display }}</p>
+        {% if payment.provider_reference %}
+          <p><strong>Reference:</strong> {{ payment.provider_reference }}</p>
+        {% endif %}
+      {% endif %}
+
+      <h4>Shipments in this consolidation</h4>
+      <table class="table table-sm">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Suit Number</th>
+            <th>Tracking Number</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in items %}
+          <tr>
+            <td>{{ item.shipment.id }}</td>
+            <td>{{ item.shipment.suit_number }}</td>
+            <td>{{ item.shipment.tracking_number }}</td>
+            <td>{{ item.shipment.get_status_display }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+  </div>
+</body>
+</html>

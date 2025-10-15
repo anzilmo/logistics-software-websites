@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block title %}{{ pkg.suit_number }} — Console Package{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <h1 class="h3 m-0">Console Package {{ pkg.suit_number }}</h1>
+    <span class="badge text-bg-secondary">Created {{ pkg.created_at|naturaltime }}</span>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-md-6">
+      <div class="card h-100">
+        <div class="card-header">Summary</div>
+        <div class="card-body">
+          <dl class="row mb-0">
+            <dt class="col-sm-5">Price</dt>
+            <dd class="col-sm-7">{{ pkg.price|floatformat:2 }} {{ pkg.currency }}</dd>
+
+            <dt class="col-sm-5">Shipments</dt>
+            <dd class="col-sm-7">{{ pkg.shipments_count }}</dd>
+
+            <dt class="col-sm-5">Courier</dt>
+            <dd class="col-sm-7">{{ pkg.selected_courier_name|default:"—" }}</dd>
+
+            <dt class="col-sm-5">Owner</dt>
+            <dd class="col-sm-7">{{ pkg.user.get_username }}</dd>
+
+            <dt class="col-sm-5">Linked Consolidation</dt>
+            <dd class="col-sm-7">
+              {% if pkg.consolidation %}
+                <a href="{% url 'customer:console_details' pkg.consolidation.pk %}">#{{ pkg.consolidation.pk }}</a>
+              {% else %}
+                —
+              {% endif %}
+            </dd>
+          </dl>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <div class="card h-100">
+        <div class="card-header">Weights & Volume</div>
+        <div class="card-body">
+          <dl class="row mb-0">
+            <dt class="col-sm-6">Total CBM</dt>
+            <dd class="col-sm-6">{{ pkg.total_cbm }}</dd>
+
+            <dt class="col-sm-6">Volume Weight</dt>
+            <dd class="col-sm-6">{{ pkg.total_volume_weight }}</dd>
+
+            <dt class="col-sm-6">Gross Weight</dt>
+            <dd class="col-sm-6">{{ pkg.total_gross_weight }}</dd>
+
+            <dt class="col-sm-6">Chargeable Weight</dt>
+            <dd class="col-sm-6">{{ pkg.chargeable_weight }}</dd>
+          </dl>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {% if pkg.original_shipments %}
+  <div class="card mt-3">
+    <div class="card-header">Original Shipments</div>
+    <div class="card-body p-0">
+      <table class="table mb-0">
+        <thead>
+          <tr>
+            <th style="width: 120px;">ID</th>
+            <th>Suit #</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for s in pkg.original_shipments %}
+          <tr>
+            <td>{{ s.id }}</td>
+            <td>{{ s.suit_number|default:"" }}</td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="2" class="text-center text-muted">No shipments recorded</td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="mt-3 d-flex gap-2">
+    <a class="btn btn-primary" href="#" onclick="window.print(); return false;">Print</a>
+    <a class="btn btn-outline-secondary" href="{% url 'customer:console_details' pkg.consolidation.pk %}">Back to Consolidation</a>
+  </div>
+</div>
+{% endblock %}

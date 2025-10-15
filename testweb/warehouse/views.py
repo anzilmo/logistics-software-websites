@@ -18,7 +18,7 @@ import os
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.http import FileResponse, Http404
-from customer.models import  CourierRate, PurchaseBill
+from customer.models import  CourierRate, PurchaseBill, ConsoleShipment, Consolidation
 from .models import Warehouse
 # import the model from the customer app
 
@@ -305,7 +305,17 @@ def shipment_list(request):
     qs = Shipment.objects.filter(owner=request.user).select_related("courier", "warehouse")
     shipments = Shipment.objects.select_related("profile", "warehouse").all()
 
-    return render(request, "warehouse/shipment_list.html", {"shipments": shipments})
+    # Get console shipments
+    console_shipments = ConsoleShipment.objects.select_related("shipment", "created_by").order_by("-created_at")
+
+    # Get consolidations
+    consolidations = Consolidation.objects.select_related("user", "selected_courier").order_by("-created_at")
+
+    return render(request, "warehouse/shipment_list.html", {
+        "shipments": shipments,
+        "console_shipments": console_shipments,
+        "consolidations": consolidations,
+    })
 # Create a new shipment
 def shipment_create(request):
     warehouse_id = request.session.get("warehouse_id")

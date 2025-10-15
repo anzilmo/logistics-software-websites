@@ -11,71 +11,179 @@
     <a href="{% url 'customer:console_list' %}">&larr; Back to console</a>
     <h3 class="mt-2">Consolidation details</h3>
 
-    <form method="post" action="#">
-      {% csrf_token %}
-      {% for id in selected_ids %}
-        <input type="hidden" name="shipment_ids" value="{{ id }}">
-      {% endfor %}
+    {% if consolidation %}
+      <p><strong>Consolidation ID:</strong> {{ consolidation.id }}</p>
+      <p><strong>Status:</strong> {{ consolidation.get_status_display }}</p>
+      <p><strong>Total CBM:</strong> {{ consolidation.total_cbm }}</p>
+      <p><strong>Total Volume Weight:</strong> {{ consolidation.total_volume_weight }} kg</p>
+      <p><strong>Total Gross Weight:</strong> {{ consolidation.total_gross_weight }} kg</p>
+      <p><strong>Chargeable Weight:</strong> {{ consolidation.chargeable_weight }} kg</p>
+      <p><strong>Price:</strong> {{ consolidation.price }} {{ consolidation.currency }}</p>
+      <p><strong>Shipments Count:</strong> {{ consolidation.shipments_count }}</p>
+      {% if consolidation.selected_courier %}
+        <p><strong>Selected Courier:</strong> {{ consolidation.selected_courier.name }}</p>
+      {% endif %}
 
+      {% if delivery_address %}
+        <h4>Delivery Address</h4>
+        <p><strong>Recipient:</strong> {{ delivery_address.recipient_name }}</p>
+        <p><strong>Address:</strong> {{ delivery_address.address_line1 }}{% if delivery_address.address_line2 %}, {{ delivery_address.address_line2 }}{% endif %}</p>
+        <p><strong>City:</strong> {{ delivery_address.city }}, {{ delivery_address.state }} {{ delivery_address.postal_code }}</p>
+        <p><strong>Country:</strong> {{ delivery_address.country }}</p>
+        {% if delivery_address.phone %}
+          <p><strong>Phone:</strong> {{ delivery_address.phone }}</p>
+        {% endif %}
+      {% endif %}
+
+      {% if payment %}
+        <h4>Payment Status</h4>
+        <p><strong>Amount:</strong> {{ payment.amount }} {{ payment.currency }}</p>
+        <p><strong>Status:</strong> {{ payment.get_status_display }}</p>
+        {% if payment.provider_reference %}
+          <p><strong>Reference:</strong> {{ payment.provider_reference }}</p>
+        {% endif %}
+      {% endif %}
+
+      <h4>Shipments in this consolidation</h4>
       <table class="table table-sm">
         <thead>
           <tr>
             <th>ID</th>
-            <th>Suit / Tracking</th>
-            <th class="text-end">CBM</th>
-            <th class="text-end">Vol Wt (kg)</th>
-            <th class="text-end">Gross (kg)</th>
-            <th class="text-end">Chargeable (kg)</th>
+            <th>Suit Number</th>
+            <th>Tracking Number</th>
+            <th>Status</th>
           </tr>
         </thead>
         <tbody>
-          {% for p in shipments %}
+          {% for item in items %}
           <tr>
-            <td>{{ p.id }}</td>
-            <td>{{ p.suit_number|default:p.tracking_number }}</td>
-            <td class="text-end">{{ p.cbm }}</td>
-            <td class="text-end">{{ p.volume_weight }}</td>
-            <td class="text-end">{{ p.gross_weight }}</td>
-            <td class="text-end">{{ p.chargeable_weight }}</td>
+            <td>{{ item.shipment.id }}</td>
+            <td>{{ item.shipment.suit_number }}</td>
+            <td>{{ item.shipment.tracking_number }}</td>
+            <td>{{ item.shipment.get_status_display }}</td>
           </tr>
           {% endfor %}
         </tbody>
       </table>
+    {% else %}
+      <form method="post" action="#">
+        {% csrf_token %}
+        {% for id in selected_ids %}
+          <input type="hidden" name="shipment_ids" value="{{ id }}">
+        {% endfor %}
 
-      <h5>Totals</h5>
-      <ul class="list-unstyled">
-        <li><strong>Total CBM:</strong> {{ totals.total_cbm }}</li>
-        <li><strong>Total volume weight:</strong> {{ totals.total_volume_weight }} kg</li>
-        <li><strong>Total gross weight:</strong> {{ totals.total_gross_weight }} kg</li>
-        <li><strong>Chargeable weight:</strong> {{ totals.chargeable_weight }} kg</li>
-      </ul>
-
-      <div class="row g-2 align-items-center mb-3">
-        <div class="col-auto">
-          <label class="form-label">Courier</label>
-          <select name="courier_id" class="form-select" style="min-width:220px;">
-            <option value="">-- choose courier (optional) --</option>
-            {% for c in couriers %}
-              <option value="{{ c.pk }}">{{ c.name }}</option>
+        <table class="table table-sm">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Suit / Tracking</th>
+              <th class="text-end">CBM</th>
+              <th class="text-end">Vol Wt (kg)</th>
+              <th class="text-end">Gross (kg)</th>
+              <th class="text-end">Chargeable (kg)</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for p in shipments %}
+            <tr>
+              <td>{{ p.id }}</td>
+              <td>{{ p.suit_number|default:p.tracking_number }}</td>
+              <td class="text-end">{{ p.cbm }}</td>
+              <td class="text-end">{{ p.volume_weight }}</td>
+              <td class="text-end">{{ p.gross_weight }}</td>
+              <td class="text-end">{{ p.chargeable_weight }}</td>
+            </tr>
             {% endfor %}
-          </select>
-        </div>
-
-        <div class="col-auto">
-          <label class="form-label">Rate (per kg)</label>
-          <input type="number" step="0.01" name="rate" class="form-control" value="{{ totals.rate_per_kg }}" style="width:140px;">
-        </div>
-      </div>
-
-      <div class="mb-3">
-        <strong>Estimated price:</strong> {{ totals.price }}
-      </div>
-
-      <div>
-        <button type="submit" class="btn btn-success">Confirm consolidation</button>
-        <a class="btn btn-secondary" href="{% url 'customer:console_list' %}">Cancel</a>
-      </div>
-    </form>
+          </tbody>
+        </table>
+  
+          <h5>Totals</h5>
+          <ul class="list-unstyled">
+            <li><strong>Total CBM:</strong> {{ totals.total_cbm }}</li>
+            <li><strong>Total volume weight:</strong> {{ totals.total_volume_weight }} kg</li>
+            <li><strong>Total gross weight:</strong> {{ totals.total_gross_weight }} kg</li>
+            <li><strong>Chargeable weight:</strong> {{ totals.chargeable_weight }} kg</li>
+          </ul>
+  
+          <div class="row g-2 align-items-center mb-3">
+            <div class="col-auto">
+              <label class="form-label">Courier</label>
+              <select name="courier_id" class="form-select" style="min-width:220px;">
+                <option value="">-- choose courier (optional) --</option>
+                {% for c in couriers %}
+                  <option value="{{ c.pk }}">{{ c.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+  
+            <div class="col-auto">
+              <label class="form-label">Rate (per kg)</label>
+              <input type="number" step="0.01" name="rate" class="form-control" value="{{ totals.rate_per_kg }}" style="width:140px;">
+            </div>
+          </div>
+  
+          <div class="mb-3">
+            <strong>Estimated price:</strong> {{ totals.price }}
+          </div>
+  
+          <h5>Delivery Address</h5>
+          <div class="row g-2">
+            <div class="col-md-6">
+              <label class="form-label">Recipient name</label>
+              <input type="text" name="recipient_name" class="form-control" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Phone</label>
+              <input type="text" name="phone" class="form-control">
+            </div>
+            <div class="col-12">
+              <label class="form-label">Address line 1</label>
+              <input type="text" name="address_line1" class="form-control" required>
+            </div>
+            <div class="col-12">
+              <label class="form-label">Address line 2</label>
+              <input type="text" name="address_line2" class="form-control">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">City</label>
+              <input type="text" name="city" class="form-control" required>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">State/Province</label>
+              <input type="text" name="state" class="form-control">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">ZIP/Postal code</label>
+              <input type="text" name="postal_code" class="form-control">
+            </div>
+            <div class="col-12">
+              <label class="form-label">Country</label>
+              <input type="text" name="country" class="form-control" required>
+            </div>
+          </div>
+  
+          <h5 class="mt-4">Payment Method</h5>
+          <div class="mb-3">
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="payment_method" id="card" value="card" checked>
+              <label class="form-check-label" for="card">
+                Credit / Debit Card
+              </label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="payment_method" id="offline" value="offline">
+              <label class="form-check-label" for="offline">
+                Offline / Bank Transfer
+              </label>
+            </div>
+          </div>
+  
+          <div>
+            <button type="submit" class="btn btn-success">Confirm consolidation</button>
+            <a class="btn btn-secondary" href="{% url 'customer:console_list' %}">Cancel</a>
+          </div>
+        </form>
+      {% endif %}
   </div>
 </body>
 </html>

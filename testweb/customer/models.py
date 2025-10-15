@@ -6,11 +6,14 @@ from __future__ import annotations
 from decimal import Decimal, ROUND_HALF_UP, InvalidOperation
 from uuid import uuid4
 import os
+import logging
 
 from django.conf import settings
 from django.db import models
 from django.db.models import Q
 from warehouse.models import Shipment
+
+logger = logging.getLogger(__name__)
 
 
 from django.core.validators import FileExtensionValidator, MinValueValidator, MaxValueValidator
@@ -451,7 +454,8 @@ from django.db import models
 from django.utils import timezone
 
 class DeliveryAddress(models.Model):
-    shipment = models.OneToOneField("warehouse.Shipment", on_delete=models.CASCADE, related_name="delivery_address")
+    shipment = models.OneToOneField("warehouse.Shipment", on_delete=models.CASCADE, related_name="delivery_address", null=True, blank=True)
+    consolidation = models.OneToOneField("Consolidation", on_delete=models.CASCADE, related_name="delivery_address", null=True, blank=True)
     recipient_name = models.CharField(max_length=255)
     address_line1 = models.CharField(max_length=255)
     address_line2 = models.CharField(max_length=255, blank=True)
@@ -477,7 +481,8 @@ class Payment(models.Model):
         (STATUS_FAILED, "Failed"),
     ]
 
-    shipment = models.OneToOneField("warehouse.Shipment", on_delete=models.CASCADE, related_name="payment")
+    shipment = models.OneToOneField("warehouse.Shipment", on_delete=models.CASCADE, related_name="payment", null=True, blank=True)
+    consolidation = models.OneToOneField("Consolidation", on_delete=models.CASCADE, related_name="payment", null=True, blank=True)
     amount = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal("0.00"))
     currency = models.CharField(max_length=8, default="USD")
     status = models.CharField(max_length=16, choices=STATUS_CHOICES, default=STATUS_PENDING)
@@ -501,6 +506,8 @@ class Payment(models.Model):
         self.save(update_fields=["status", "provider_reference", "updated_at"])
 
     def __str__(self):
+        if self.shipment is None:
+            return f"No shipment — {self.amount} {self.currency} ({self.status})"
         return f"{self.shipment.suit_number or self.shipment.pk} — {self.amount} {self.currency} ({self.status})"
     
     
@@ -631,3 +638,9 @@ class ConsolidationItem(models.Model):
     def __str__(self) -> str:
         suit = getattr(self.shipment, "suit_number", None) or f"#{self.shipment_id}"
         return f"Cons #{self.consolidation_id} — {suit}"
+
+
+
+
+
+

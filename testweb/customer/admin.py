@@ -157,6 +157,9 @@ class DeliveryAddressAdmin(admin.ModelAdmin):
 from django.contrib import admin
 from django.utils.html import format_html
 from .models import Payment, Consolidation, ConsolidationItem, ConsoleShipment
+import logging
+
+logger = logging.getLogger(__name__)
 
 @admin.register(Payment)
 class PaymentAdmin(admin.ModelAdmin):
@@ -213,6 +216,13 @@ class PaymentAdmin(admin.ModelAdmin):
     mark_as_failed.short_description = "Mark selected payments as FAILED"
 
 
+class ConsolidationItemInline(admin.TabularInline):
+    model = ConsolidationItem
+    extra = 0
+    fields = ("shipment",)
+    autocomplete_fields = ("shipment",)
+    show_change_link = True
+
 @admin.register(Consolidation)
 class ConsolidationAdmin(admin.ModelAdmin):
     list_display = (
@@ -233,6 +243,15 @@ class ConsolidationAdmin(admin.ModelAdmin):
     search_fields = ("user__username", "user__email", "id")
     readonly_fields = ("created_at",)
     autocomplete_fields = ("user", "selected_courier", "selected_rate")
+    inlines = [ConsolidationItemInline]
+
+    def save_related(self, request, form, formsets, change):
+        super().save_related(request, form, formsets, change)
+        consolidation = form.instance
+        items_count = consolidation.items.count()
+        logger.info(f"Consolidation {consolidation.id} saved with {items_count} items")
+        if items_count > 0:
+            logger.info(f"Items: {[item.shipment.suit_number for item in consolidation.items.all()]}")
 
 
 @admin.register(ConsolidationItem)

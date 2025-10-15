@@ -2539,104 +2539,22 @@ def consolidation_quote(request):
 
 
 
-# @login_required
-# def console_details(request):
-#     """
-#     Display consolidation details for selected shipments.
-#     Expects shipment_ids in POST or GET.
-#     """
-#     if request.method == "POST":
-#         ids = request.POST.getlist("shipment_ids")
-#     else:
-#         ids = request.GET.getlist("ids[]") or request.GET.getlist("ids")
-#     if not ids:
-#         messages.error(request, "No shipments selected.")
-#         return redirect("customer:console_list")
-
-#     # Fetch shipments and enforce ownership
-#     qs = Shipment.objects.filter(pk__in=ids)
-#     if not request.user.is_staff:
-#         qs = [s for s in qs if (getattr(s, "profile", None) and getattr(s.profile, "user", None) == request.user) or getattr(s, "owner", None) == request.user]
-#     else:
-#         qs = list(qs)
-
-#     if len(qs) < 2:
-#         messages.error(request, "Select at least two shipments to consolidate.")
-#         return redirect("customer:console_list")
-
-#     shipments = []
-#     total_cbm = Decimal("0")
-#     total_gross = Decimal("0")
-
-#     for s in qs:
-#         length = getattr(s, "length_cm", None) or getattr(s, "length", None) or 0
-#         width = getattr(s, "width_cm", None) or getattr(s, "width", None) or 0
-#         height = getattr(s, "height_cm", None) or getattr(s, "height", None) or 0
-#         gross_w = getattr(s, "gross_weight", None) or getattr(s, "weight_kg", None) or 0
-
-#         cbm = compute_cbm(length, width, height)
-#         vol_wt = compute_volume_weight(cbm)
-#         chargeable_w = max(Decimal(gross_w or 0), vol_wt).quantize(Decimal("0.000"))
-
-#         shipments.append({
-#             "id": s.pk,
-#             "suit_number": getattr(s, "suit_number", "") or "",
-#             "tracking_number": getattr(s, "tracking_number", "") or "",
-#             "cbm": str(cbm),
-#             "volume_weight": str(vol_wt),
-#             "gross_weight": str(gross_w),
-#             "chargeable_weight": str(chargeable_w),
-#         })
-
-#         total_cbm += cbm
-#         total_gross += Decimal(gross_w or 0)
-
-#     total_volume_weight = compute_volume_weight(total_cbm)
-#     chargeable_weight = max(total_gross, total_volume_weight).quantize(Decimal("0.000"))
-
-#     rate = DEFAULT_CONSOLIDATION_RATE
-#     price = (chargeable_weight * rate).quantize(Decimal("0.01"))
-
-#     # Offer list of available couriers
-#     couriers = []
-#     try:
-#         from warehouse.models import Courier
-#         couriers = Courier.objects.filter(active=True)[:20]
-#     except Exception:
-#         couriers = []
-
-#     totals = {
-#         "total_cbm": total_cbm.quantize(Decimal("0.000001")),
-#         "total_volume_weight": total_volume_weight,
-#         "total_gross_weight": total_gross.quantize(Decimal("0.000")),
-#         "chargeable_weight": chargeable_weight,
-#         "rate_per_kg": rate,
-#         "price": price,
-#     }
-
-#     return render(request, "customer/console_details.html", {
-#         "shipments": shipments,
-#         "totals": totals,
-#         "couriers": couriers,
-#         "selected_ids": ids,
-#     })
-
 @login_required
-def console_details(request):
+def console_details_create(request):
     import logging
     logger = logging.getLogger(__name__)
-    logger.info(f"console_details: user={request.user.username}, method={request.method}")
+    logger.info(f"console_details_create: user={request.user.username}, method={request.method}")
 
     if request.method == "POST":
         ids = request.POST.getlist("shipment_ids")
         courier_id = request.POST.get("courier_id")
         rate = request.POST.get("rate")
-        logger.info(f"console_details POST: shipment_ids={ids}, courier_id={courier_id}, rate={rate}")
+        logger.info(f"console_details_create POST: shipment_ids={ids}, courier_id={courier_id}, rate={rate}")
 
         # Handle POST: create consolidation
         if not ids:
             ids = request.GET.getlist("shipment_ids")
-        logger.info(f"console_details: using shipment_ids from POST or GET: {ids}")
+        logger.info(f"console_details_create: using shipment_ids from POST or GET: {ids}")
         if not ids:
             messages.error(request, "No shipments selected.")
             return redirect("customer:console_list")
@@ -2692,6 +2610,7 @@ def console_details(request):
                 selected_courier = Courier.objects.get(pk=courier_id, active=True)
                 if rate:
                     selected_rate = CourierRate.objects.filter(courier=selected_courier, price_per_kg=Decimal(rate), active=True).first()
+                logger.info(f"console_details_create: selected_courier={selected_courier}, selected_rate={selected_rate}")
             except Exception as e:
                 logger.error(f"Error fetching courier/rate: {e}")
 
@@ -2701,9 +2620,10 @@ def console_details(request):
             final_price = (chargeable_weight * selected_rate.price_per_kg).quantize(Decimal("0.01"))
         elif rate:
             final_price = (chargeable_weight * Decimal(rate)).quantize(Decimal("0.01"))
+        logger.info(f"console_details_create: final_price={final_price}")
 
         # Create consolidation
-        logger.info(f"console_details: About to create Consolidation with user={request.user}, total_cbm={total_cbm}, total_volume_weight={total_volume_weight}, total_gross={total_gross}, chargeable_weight={chargeable_weight}, final_price={final_price}, selected_courier={selected_courier}, selected_rate={selected_rate}")
+        logger.info(f"console_details_create: About to create Consolidation with user={request.user}, total_cbm={total_cbm}, total_volume_weight={total_volume_weight}, total_gross={total_gross}, chargeable_weight={chargeable_weight}, final_price={final_price}, selected_courier={selected_courier}, selected_rate={selected_rate}")
         with transaction.atomic():
             try:
                 consolidation = Consolidation.objects.create(
@@ -2720,21 +2640,50 @@ def console_details(request):
                     selected_rate=selected_rate,
                     selected_price=final_price,
                 )
-                logger.info(f"console_details: Consolidation created successfully with id={consolidation.id}")
+                logger.info(f"console_details_create: Consolidation created successfully with id={consolidation.id}")
             except Exception as e:
-                logger.error(f"console_details: Error creating Consolidation: {e}")
+                logger.error(f"console_details_create: Error creating Consolidation: {e}")
                 raise
 
             # Create consolidation items
             for s in qs:
                 ConsolidationItem.objects.create(consolidation=consolidation, shipment=s)
+            logger.info(f"console_details_create: ConsolidationItems created for {len(qs)} shipments")
+
+            # Create delivery address for consolidation
+            addr_data = {
+                "recipient_name": request.POST.get("recipient_name"),
+                "address_line1": request.POST.get("address_line1"),
+                "address_line2": request.POST.get("address_line2", ""),
+                "city": request.POST.get("city"),
+                "state": request.POST.get("state", ""),
+                "postal_code": request.POST.get("postal_code", ""),
+                "country": request.POST.get("country"),
+                "phone": request.POST.get("phone", ""),
+            }
+            if all(addr_data.values()):  # Only create if all required fields are provided
+                DeliveryAddress.objects.create(consolidation=consolidation, **addr_data)
+                logger.info(f"console_details_create: DeliveryAddress created for consolidation {consolidation.id}")
+
+            # Create payment for consolidation
+            payment_method = request.POST.get("payment_method")
+            if payment_method:
+                payment_obj, created = Payment.objects.get_or_create(
+                    consolidation=consolidation,
+                    defaults={"amount": final_price, "currency": "USD", "status": Payment.STATUS_PENDING},
+                )
+                if not created:
+                    payment_obj.amount = final_price
+                    payment_obj.currency = "USD"
+                    payment_obj.save(update_fields=["amount", "currency"])
+                logger.info(f"console_details_create: Payment created for consolidation {consolidation.id}")
 
         messages.success(request, f"Consolidation created successfully with {len(qs)} shipments.")
         return redirect("customer:console_list")
 
     else:
         ids = request.GET.getlist("shipment_ids")
-    logger.info(f"console_details: shipment_ids={ids}")
+    logger.info(f"console_details_create: shipment_ids={ids}")
 
     if not ids:
         messages.error(request, "No shipments selected.")
@@ -2747,7 +2696,7 @@ def console_details(request):
     else:
         qs = list(qs)
 
-    logger.info(f"console_details: filtered shipments count={len(qs)}")
+    logger.info(f"console_details_create: filtered shipments count={len(qs)}")
 
     if len(qs) < 2:
         messages.error(request, "Select at least two shipments to consolidate.")
@@ -2791,7 +2740,9 @@ def console_details(request):
     try:
         from warehouse.models import Courier
         couriers = Courier.objects.filter(active=True)[:20]
-    except Exception:
+        logger.info(f"console_details_create: couriers count={len(couriers)}")
+    except Exception as e:
+        logger.error(f"console_details_create: Error fetching couriers: {e}")
         couriers = []
 
     totals = {
@@ -2803,7 +2754,7 @@ def console_details(request):
         "price": price,
     }
 
-    logger.info(f"console_details: totals={totals}, shipments count={len(shipments)}")
+    logger.info(f"console_details_create: totals={totals}, shipments count={len(shipments)}")
 
     return render(request, "customer/console_details.html", {
         "shipments": shipments,
@@ -2811,3 +2762,103 @@ def console_details(request):
         "couriers": couriers,
         "selected_ids": ids,
     })
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+
+from decimal import Decimal
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.db import transaction
+from django.shortcuts import get_object_or_404, redirect, render
+
+from .models import Consolidation, ConsolidationItem, Shipment  # adjust imports to your app
+
+
+def _generate_console_suit(consolidation_pk: int) -> str:
+    """Create CSP0001-style IDs from the consolidation primary key."""
+    return f"CSP{int(consolidation_pk):04d}"
+
+
+@login_required
+@transaction.atomic
+def console_details_view(request, consolidation_id):
+    """
+    Example view that creates a Consolidation and, within the SAME transaction,
+    persists a ConsolePackage representing the consolidated shipment.
+
+    Assumptions:
+    - You POST a set of shipment IDs to consolidate.
+    - You already have logic that calculates totals and creates Consolidation + items.
+    Replace placeholders with your existing calculations.
+    """
+    import logging
+    logger = logging.getLogger(__name__)
+    logger.info(f"console_details_view: user={request.user.username}, consolidation_id={consolidation_id}, method={request.method}")
+
+    consolidation = get_object_or_404(Consolidation, pk=consolidation_id)
+    logger.info(f"console_details_view: consolidation found, status={consolidation.status}, shipments_count={consolidation.shipments_count}")
+
+    # Log delivery address and payment availability
+    delivery_address = getattr(consolidation, 'delivery_address', None)
+    payment = getattr(consolidation, 'payment', None)
+    logger.info(f"console_details_view: delivery_address={delivery_address}, payment={payment}")
+    if delivery_address:
+        logger.info(f"console_details_view: delivery_address details - recipient_name={delivery_address.recipient_name}, city={delivery_address.city}")
+    if payment:
+        logger.info(f"console_details_view: payment details - amount={payment.amount}, status={payment.status}")
+
+    if request.method == "POST":
+        logger.info(f"console_details_view POST: POST data keys: {list(request.POST.keys())}")
+        # --- Your existing computations (replace with real values) ---
+        # Example placeholders; ensure these are set from your real logic
+        total_cbm = Decimal(request.POST.get("total_cbm", "0"))
+        total_volume_weight = Decimal(request.POST.get("total_volume_weight", "0"))
+        total_gross = Decimal(request.POST.get("total_gross_weight", "0"))
+        chargeable_weight = Decimal(request.POST.get("chargeable_weight", "0"))
+        final_price = Decimal(request.POST.get("final_price", "0"))
+        currency = request.POST.get("currency", "USD")
+        selected_courier = None  # or look up from POST
+
+        # `qs` should be the shipments included in this consolidation
+        shipment_ids = request.POST.getlist("shipment_ids")
+        logger.info(f"console_details_view: shipment_ids from POST: {shipment_ids}")
+        qs = Shipment.objects.filter(pk__in=shipment_ids)
+        logger.info(f"console_details_view: shipments queryset count: {qs.count()}")
+
+        # Ensure ConsolidationItems exist (pseudo-code; adapt to your schema)
+        items = [
+            ConsolidationItem(
+                consolidation=consolidation,
+                shipment=s,
+                # ... any extra fields ...
+            )
+            for s in qs
+        ]
+        ConsolidationItem.objects.bulk_create(items, ignore_conflicts=True)
+        logger.info(f"console_details_view: ConsolidationItems bulk created, count: {len(items)}")
+
+        messages.success(request, f"Consolidation updated with {len(qs)} shipments.")
+        return redirect("customer:console_details_view", consolidation_id=consolidation_id)
+
+    # GET fallback: show a page with computed totals/confirm form
+    items = consolidation.items.select_related("shipment").all()
+    shipments = [item.shipment for item in items]
+    context = {
+        "consolidation": consolidation,
+        "shipments": shipments,
+        "items": items,
+        "delivery_address": delivery_address,
+        "payment": payment,
+        # include any preview totals, shipments, etc.
+    }
+    logger.info(f"console_details_view: rendering GET response for consolidation {consolidation_id} with {len(shipments)} shipments")
+    return render(request, "customer/console_details.html", context)
+
