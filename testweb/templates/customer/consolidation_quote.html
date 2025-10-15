@@ -1,0 +1,143 @@
+{# templates/customer/consolidation_quote.html #}
+{% load static %}
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Consolidation Quote</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="{% static 'css/app.css' %}">
+  <style>
+    body{font:14px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Arial;background:#f7f7fb;color:#111}
+    .wrap{max-width:1200px;margin:24px auto;padding:0 16px}
+    .grid{display:grid;grid-template-columns:1fr;gap:16px;align-items:start}
+    .card{background:#fff;border:1px solid #e6e6ef;border-radius:12px;padding:16px}
+    .muted{color:#6b7280}.small{font-size:12px}.right{text-align:right}
+    table{width:100%;border-collapse:collapse;table-layout:fixed}
+    th,td{padding:8px;border-bottom:1px solid #eee;vertical-align:middle}
+    thead th{background:#fafafe}
+    .actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    .btn{display:inline-block;padding:8px 12px;border:1px solid #cfd3dc;border-radius:8px;background:#fff;cursor:pointer}
+    .btn-primary{background:#007bff;color:#fff;border-color:#007bff}
+    .pill{display:inline-block;padding:2px 8px;border:1px solid #d7dae3;border-radius:999px;font-size:12px;color:#374151}
+    .w-160{width:160px}
+    .mb-0{margin-bottom:0}.mb-1{margin-bottom:8px}.mb-2{margin-bottom:12px}.mb-3{margin-bottom:16px}
+    .mt-1{margin-top:8px}.mt-2{margin-top:12px}.mt-3{margin-top:16px}
+    select,input[type=text]{padding:6px 8px;border:1px solid #d3d7e0;border-radius:8px;background:#fff}
+
+    .num{text-align:right}
+    .mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace}
+    .nowrap{white-space:nowrap}
+  </style>
+</head>
+<body>
+<div class="wrap">
+
+  {% if messages %}
+    <div class="mb-2">
+      {% for message in messages %}
+        <div class="small {% if message.tags %}{{ message.tags }}{% endif %}">{{ message }}</div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <div class="grid">
+    <div class="card">
+      <h2 class="mb-2">Consolidation Quote</h2>
+      <p class="muted mb-3">Review the package details and totals for consolidation.</p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Suit Number</th>
+            <th>Tracking</th>
+            <th>Dimensions (cm)</th>
+            <th>CBM</th>
+            <th>Volume Weight</th>
+            <th>Gross Weight</th>
+            <th>Chargeable Weight</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for s in shipments %}
+          <tr>
+            <td class="num">{{ s.id }}</td>
+            <td>{{ s.suit_number }}</td>
+            <td class="mono">{{ s.tracking_number }}</td>
+            <td class="mono">{{ s.length_cm }}×{{ s.width_cm }}×{{ s.height_cm }}</td>
+            <td class="num">{{ s.cbm }}</td>
+            <td class="num">{{ s.volume_weight }}</td>
+            <td class="num">{{ s.gross_weight }}</td>
+            <td class="num">{{ s.chargeable_weight }}</td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="8" class="muted">No shipments found.</td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+
+      <div class="mt-3">
+        <h3>Totals</h3>
+        <table>
+          <tbody>
+            <tr>
+              <td>Total CBM:</td>
+              <td class="num">{{ totals.total_cbm }}</td>
+            </tr>
+            <tr>
+              <td>Total Volume Weight:</td>
+              <td class="num">{{ totals.total_volume_weight }}</td>
+            </tr>
+            <tr>
+              <td>Total Gross Weight:</td>
+              <td class="num">{{ totals.total_gross_weight }}</td>
+            </tr>
+            <tr>
+              <td>Chargeable Weight:</td>
+              <td class="num">{{ totals.chargeable_weight }}</td>
+            </tr>
+            <tr>
+              <td>Rate per kg:</td>
+              <td class="num">{{ totals.rate_per_kg }}</td>
+            </tr>
+            <tr>
+              <td><strong>Total Price:</strong></td>
+              <td class="num"><strong>{{ totals.price }}</strong></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <form method="post" action="{% url 'customer:consolidation_confirm' %}">
+        {% csrf_token %}
+        <input type="hidden" name="ids" value="{% for s in shipments %}{{ s.id }}{% if not forloop.last %},{% endif %}{% endfor %}">
+        <input type="hidden" name="rate" value="{{ totals.rate_per_kg }}">
+        <input type="hidden" name="currency" value="USD">
+
+        <div class="mt-3">
+          <label for="courier_id">Select Courier:</label>
+          <select name="courier_id" id="courier_id" required>
+            <option value="">Choose a courier</option>
+            {% for c in couriers %}
+              <option value="{{ c.pk }}">{{ c.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="mt-3">
+          <label for="note">Note (optional):</label>
+          <textarea name="note" id="note" rows="3" style="width:100%;padding:6px 8px;border:1px solid #d3d7e0;border-radius:8px;"></textarea>
+        </div>
+
+        <div class="actions mt-3">
+          <button type="submit" class="btn btn-primary">Confirm Consolidation</button>
+          <a href="{% url 'customer:console_list' %}" class="btn">Back to Console</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+</body>
+</html>

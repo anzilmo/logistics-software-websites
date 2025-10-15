@@ -1,0 +1,17 @@
+{% extends 'main.html' %}
+{% load static %}
+
+{% block title %}Release Shipment{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Release Shipment</h2>
+    <p>Are you sure you want to release shipment <strong>{{ shipment.suit_number }}</strong>?</p>
+
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-success">Yes, Release</button>
+        <a href="{% url 'warehouse:shipment_detail' shipment.suit_number %}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}

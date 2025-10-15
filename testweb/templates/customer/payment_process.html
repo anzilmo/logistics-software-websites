@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+{% block content %}
+  <h2>Payment for Shipment {{ shipment.suit_number }}</h2>
+  <p>Amount: {{ amount }} {{ currency }}</p>
+
+  <form method="post" novalidate>
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+
+    <div>
+      {{ form.payment_method.label_tag }}<br>
+      {{ form.payment_method }}
+      {{ form.payment_method.errors }}
+    </div>
+
+    <div id="card_fields" style="display: none;">
+      {{ form.card_token.label_tag }}<br>
+      {{ form.card_token }}
+      {{ form.card_token.errors }}
+    </div>
+
+    <div>
+      {{ form.billing_name.label_tag }}<br>
+      {{ form.billing_name }}
+      {{ form.billing_name.errors }}
+    </div>
+
+    <button type="submit" class="primary">Pay Now</button>
+  </form>
+
+  <p style="margin-top: 1rem;">
+    <a href="{% url 'customer:address_create' shipment.id %}">Back</a>
+  </p>
+
+  <script>
+    document.querySelector('[name=payment_method]').addEventListener('change', function() {
+      document.getElementById('card_fields').style.display = this.value === 'card' ? 'block' : 'none';
+    });
+  </script>
+{% endblock %}
+
+
+{% comment %} 
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block content %}
+  <h2>Payment for Shipment {{ shipment.suit_number }}</h2>
+  <p>Amount: {{ amount }} {{ currency }}</p>
+
+  {# Top-level error summary (helps screen readers + visibility) #}
+  {% if form.errors %}
+    <div role="alert" aria-live="polite" class="error-summary">
+      <p><strong>{% trans "Please fix the errors below." %}</strong></p>
+      <ul>
+        {% for field in form %}
+          {% for error in field.errors %}
+            <li><a href="#id_{{ field.name }}">{{ field.label }} — {{ error }}</a></li>
+          {% endfor %}
+        {% endfor %}
+        {% for error in form.non_field_errors %}
+          <li>{{ error }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+  {% endif %}
+
+  <form method="post" novalidate>
+    {% csrf_token %}
+
+    {{ form.non_field_errors }}
+
+    <div>
+      {{ form.payment_method.label_tag }}
+      {{ form.payment_method }}
+      {{ form.payment_method.errors }}
+    </div>
+
+    <div id="card_fields" hidden>
+      {{ form.card_token.label_tag }}
+      {{ form.card_token }}
+      {{ form.card_token.errors }}
+    </div>
+
+    <div>
+      {{ form.billing_name.label_tag }}
+      {{ form.billing_name }}
+      {{ form.billing_name.errors }}
+    </div>
+
+    <button type="submit" class="primary" id="pay-btn">Pay Now</button>
+  </form>
+
+  <p style="margin-top: 1rem;">
+    <a href="{% url 'customer:address_create' shipment.id %}">Back</a>
+  </p>
+
+  <script>
+    (function () {
+      // util: toggle card fields visibility
+      function toggleCardFields(value) {
+        const cardWrap = document.getElementById('card_fields');
+        if (!cardWrap) return;
+        const show = value === 'card';
+        // use hidden attribute for better a11y instead of inline style
+        cardWrap.hidden = !show;
+
+        // mark required dynamically if you want stricter client-side checks
+        const tokenInput = cardWrap.querySelector('input,textarea,select');
+        if (tokenInput) {
+          if (show) tokenInput.setAttribute('aria-required', 'true');
+          else tokenInput.removeAttribute('aria-required');
+        }
+      }
+
+      // find the field (works for select or radios)
+      const pmField = document.querySelector('[name="payment_method"]');
+      if (pmField) {
+        // initialize on load (covers server re-render w/ errors)
+        const initial = pmField.type === 'radio'
+          ? (document.querySelector('[name="payment_method"]:checked')?.value || '')
+          : pmField.value;
+        toggleCardFields(initial);
+
+        // react to changes
+        pmField.addEventListener('change', function (e) {
+          const value = e.target.type === 'radio'
+            ? (document.querySelector('[name="payment_method"]:checked')?.value || '')
+            : e.target.value;
+          toggleCardFields(value);
+        });
+      }
+
+      // prevent double submit (simple, effective)
+      const form = document.querySelector('form');
+      const payBtn = document.getElementById('pay-btn');
+      if (form && payBtn) {
+        form.addEventListener('submit', function () {
+          payBtn.disabled = true;
+          payBtn.setAttribute('aria-busy', 'true');
+          payBtn.textContent = 'Processing...';
+        });
+      }
+    })();
+  </script>
+
+  <style>
+    /* tiny QoL styles; swap for your design system */
+    .error-summary { background: #ffe9e9; border: 1px solid #f5b5b5; padding: .75rem; border-radius: .5rem; }
+    .error-summary a { text-decoration: underline; }
+  </style>
+{% endblock %} {% endcomment %}

@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Shipment Rates</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2c3e50;
+            --accent-color: #e74c3c;
+            --light-bg: #f8f9fa;
+            --border-color: #dee2e6;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1400px;
+        }
+        
+        .page-header {
+            background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+            color: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .page-header h1 {
+            margin: 0;
+            font-weight: 600;
+        }
+        
+        .bulk-action-bar {
+            background-color: white;
+            padding: 1rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .bulk-action-bar .form-select {
+            width: auto;
+            min-width: 200px;
+        }
+        
+        .table-container {
+            background-color: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+        
+        .table {
+            margin-bottom: 0;
+        }
+        
+        .table thead th {
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 1rem 0.75rem;
+            font-weight: 600;
+            vertical-align: middle;
+        }
+        
+        .table tbody td {
+            padding: 0.75rem;
+            vertical-align: middle;
+            border-color: var(--border-color);
+        }
+        
+        .table tbody tr:hover {
+            background-color: rgba(52, 152, 219, 0.05);
+        }
+        
+        .courier-logo {
+            max-height: 25px;
+            max-width: 80px;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+        
+        .rate-list {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+        
+        .rate-list li {
+            padding: 3px 0;
+            border-bottom: 1px dashed #eee;
+        }
+        
+        .rate-list li:last-child {
+            border-bottom: none;
+        }
+        
+        .weight-badge {
+            background-color: #e9ecef;
+            color: #495057;
+            padding: 0.25em 0.4em;
+            border-radius: 0.25rem;
+            font-size: 0.875em;
+            font-weight: 500;
+        }
+        
+        .assign-form {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        
+        .assign-form .form-select {
+            width: auto;
+            min-width: 150px;
+        }
+        
+        .checkbox-cell {
+            width: 40px;
+            text-align: center;
+        }
+        
+        .select-all-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .action-btn {
+            font-size: 0.875rem;
+            padding: 0.375rem 0.75rem;
+        }
+        
+        .no-data-row td {
+            text-align: center;
+            padding: 2rem !important;
+            color: #6c757d;
+            font-style: italic;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 0.35em 0.65em;
+            font-size: 0.75em;
+            font-weight: 700;
+            line-height: 1;
+            text-align: center;
+            white-space: nowrap;
+            vertical-align: baseline;
+            border-radius: 0.375rem;
+        }
+        
+        .badge-assigned {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .badge-pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 992px) {
+            .table-container {
+                overflow-x: auto;
+            }
+            
+            .bulk-action-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .bulk-action-bar .form-select {
+                min-width: 100%;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .assign-form {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .assign-form .form-select {
+                min-width: 100%;
+            }
+        }
+        
+        /* Animation for row selection */
+        tr.selected {
+            background-color: rgba(52, 152, 219, 0.15) !important;
+            transition: background-color 0.3s;
+        }
+        
+        /* Custom checkbox styling */
+        .form-check-input:checked {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        
+        /* Footer styling */
+        .page-footer {
+            margin-top: 2rem;
+            text-align: center;
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-4 mb-5">
+        <!-- Page Header -->
+        <div class="page-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1><i class="fas fa-shipping-fast me-2"></i>All Shipments - Courier Rates</h1>
+                <button class="btn btn-light" id="helpBtn">
+                    <i class="fas fa-question-circle me-1"></i>Help
+                </button>
+            </div>
+        </div>
+        
+        <!-- Bulk Action Bar -->
+        <form method="post" action="{% url 'bulk_assign_courier' %}" id="bulkForm">
+            {% csrf_token %}
+            <div class="bulk-action-bar">
+                <div class="select-all-container">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="select-all">
+                        <label class="form-check-label" for="select-all">
+                            Select All
+                        </label>
+                    </div>
+                    <span class="selected-count badge bg-primary">0 selected</span>
+                </div>
+                
+                <div class="flex-grow-1">
+                    {{ bulk_form.courier_id }}
+                </div>
+                
+                <button type="submit" class="btn btn-primary" id="bulkAssignBtn">
+                    <i class="fas fa-tasks me-1"></i>Assign to Selected Shipments
+                </button>
+            </div>
+        </form>
+        
+        <!-- Rates Table -->
+        <div class="table-container">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th class="checkbox-cell">Select</th>
+                        <th>Shipment</th>
+                        <th>CBM</th>
+                        <th>Gross Wt (kg)</th>
+                        <th>Vol Wt (kg)</th>
+                        <th>Chargeable Wt (kg)</th>
+                        <th>Rates</th>
+                        <th>Status</th>
+                        <th>Assign Courier</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in all_data %}
+                        {% with shipment=item.shipment %}
+                            <tr>
+                                <td class="checkbox-cell">
+                                    <input type="checkbox" name="shipment_ids" value="{{ shipment.pk }}" class="form-check-input select-shipment">
+                                </td>
+                                <td>
+                                    <strong>#{{ shipment.id }}</strong><br>
+                                    <small class="text-muted">{{ shipment.suit_number }}</small>
+                                </td>
+                                <td>{{ item.cbm }}</td>
+                                <td>
+                                    <span class="weight-badge">{{ item.gross_weight }}</span>
+                                </td>
+                                <td>
+                                    <span class="weight-badge">{{ item.volume_weight }}</span>
+                                </td>
+                                <td>
+                                    <span class="weight-badge bg-primary text-white">{{ item.chargeable_weight }}</span>
+                                </td>
+                                <td>
+                                    <ul class="rate-list">
+                                        {% for r in item.rates %}
+                                            <li>
+                                                {% if r.logo %}
+                                                    <img src="{{ r.logo.url }}" alt="{{ r.courier }}" class="courier-logo">
+                                                {% else %}
+                                                    <i class="fas fa-shipping-fast text-muted me-1"></i>
+                                                {% endif %}
+                                                <strong>{{ r.courier }}</strong>: 
+                                                <span class="text-primary">{{ r.price }} {{ r.currency }}</span>
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                </td>
+                                <td>
+                                    {% if shipment.courier %}
+                                        <span class="status-badge badge-assigned">Assigned</span>
+                                    {% else %}
+                                        <span class="status-badge badge-pending">Pending</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <form method="post" action="{% url 'assign_courier' shipment.pk %}" class="assign-form">
+                                        {% csrf_token %}
+                                        {{ assign_form.courier_id }}
+                                        <button type="submit" class="btn btn-sm btn-outline-primary action-btn">
+                                            <i class="fas fa-check me-1"></i>Assign
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% endwith %}
+                    {% empty %}
+                        <tr class="no-data-row">
+                            <td colspan="9">
+                                <i class="fas fa-inbox fa-2x mb-2 d-block text-muted"></i>
+                                No shipments found.
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Page Footer -->
+        <div class="page-footer">
+            <p>Shipment Rates Management System &copy; {% now "Y" %}</p>
+        </div>
+    </div>
+
+    <!-- Help Modal -->
+    <div class="modal fade" id="helpModal" tabindex="-1" aria-labelledby="helpModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="helpModalLabel">
+                        <i class="fas fa-question-circle me-2"></i>Help - Shipment Rates
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <h6>How to use this page:</h6>
+                    <ul>
+                        <li>Select individual shipments or use "Select All" to perform bulk actions</li>
+                        <li>Choose a courier from the dropdown and click "Assign to Selected Shipments"</li>
+                        <li>To assign a courier to a single shipment, use the dropdown in the "Assign Courier" column</li>
+                        <li>Shipment status is shown in the Status column (Assigned/Pending)</li>
+                    </ul>
+                    
+                    <h6>Weight Information:</h6>
+                    <ul>
+                        <li><strong>Gross Weight:</strong> Actual weight of the shipment</li>
+                        <li><strong>Volume Weight:</strong> Calculated based on dimensions</li>
+                        <li><strong>Chargeable Weight:</strong> The higher of gross or volume weight</li>
+                    </ul>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Select All functionality
+            const selectAllCheckbox = document.getElementById('select-all');
+            const shipmentCheckboxes = document.querySelectorAll('.select-shipment');
+            const selectedCount = document.querySelector('.selected-count');
+            
+            selectAllCheckbox.addEventListener('change', function() {
+                const isChecked = this.checked;
+                shipmentCheckboxes.forEach(checkbox => {
+                    checkbox.checked = isChecked;
+                    updateRowSelection(checkbox);
+                });
+                updateSelectedCount();
+            });
+            
+            shipmentCheckboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    updateRowSelection(this);
+                    updateSelectedCount();
+                    updateSelectAllState();
+                });
+            });
+            
+            function updateRowSelection(checkbox) {
+                const row = checkbox.closest('tr');
+                if (checkbox.checked) {
+                    row.classList.add('selected');
+                } else {
+                    row.classList.remove('selected');
+                }
+            }
+            
+            function updateSelectedCount() {
+                const checkedCount = document.querySelectorAll('.select-shipment:checked').length;
+                selectedCount.textContent = `${checkedCount} selected`;
+            }
+            
+            function updateSelectAllState() {
+                const checkedCount = document.querySelectorAll('.select-shipment:checked').length;
+                const totalCount = shipmentCheckboxes.length;
+                
+                if (checkedCount === 0) {
+                    selectAllCheckbox.checked = false;
+                    selectAllCheckbox.indeterminate = false;
+                } else if (checkedCount === totalCount) {
+                    selectAllCheckbox.checked = true;
+                    selectAllCheckbox.indeterminate = false;
+                } else {
+                    selectAllCheckbox.checked = false;
+                    selectAllCheckbox.indeterminate = true;
+                }
+            }
+            
+            // Bulk form validation
+            const bulkForm = document.getElementById('bulkForm');
+            const bulkAssignBtn = document.getElementById('bulkAssignBtn');
+            
+            bulkForm.addEventListener('submit', function(e) {
+                const checkedShipments = document.querySelectorAll('.select-shipment:checked');
+                if (checkedShipments.length === 0) {
+                    e.preventDefault();
+                    alert('Please select at least one shipment to assign a courier.');
+                    return false;
+                }
+            });
+            
+            // Help modal
+            const helpBtn = document.getElementById('helpBtn');
+            const helpModal = new bootstrap.Modal(document.getElementById('helpModal'));
+            
+            helpBtn.addEventListener('click', function() {
+                helpModal.show();
+            });
+            
+            // Initialize
+            updateSelectedCount();
+        });
+    </script>
+</body>
+</html>

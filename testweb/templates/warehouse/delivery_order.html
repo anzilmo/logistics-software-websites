@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Delivery Orders{% endblock %}
+{% block content %}
+<div class="container mt-4">
+  <h2>Delivery Orders</h2>
+  <p>Total Shipments: <span class="badge bg-success">{{ shipment_count }}</span></p>
+  <table class="table table-bordered">
+    <thead><tr><th>ID</th><th>Courier</th></tr></thead>
+    <tbody>
+      {% for s in shipments %}
+        <tr>
+          <td>{{ s.id }}</td>
+          <td>{% if s.courier %}{{ s.courier.name }}{% else %}—{% endif %}</td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="2" class="text-center">No shipments</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

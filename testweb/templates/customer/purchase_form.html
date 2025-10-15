@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% if purchase %}Edit{% else %}Create{% endif %} Purchase Bill</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 800px;
+            margin: 30px auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: #4e73df;
+            background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+            color: white;
+            padding: 25px 30px;
+            text-align: center;
+        }
+        
+        h2 {
+            font-weight: 600;
+            font-size: 28px;
+            margin-bottom: 5px;
+        }
+        
+        .subtitle {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        
+        .form-container {
+            padding: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+            position: relative;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #4e73df;
+            font-size: 16px;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        
+        input:focus, select:focus {
+            border-color: #4e73df;
+            box-shadow: 0 0 0 3px rgba(78, 115, 223, 0.15);
+            outline: none;
+        }
+        
+        .error-message {
+            color: #e74a3b;
+            font-size: 14px;
+            margin-top: 5px;
+            display: block;
+        }
+        
+        .file-upload {
+            background: #f8f9fc;
+            border: 2px dashed #dddfeb;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        
+        .file-upload:hover {
+            border-color: #4e73df;
+            background: #f0f4ff;
+        }
+        
+        .file-input {
+            display: none;
+        }
+        
+        .file-label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            color: #6e707e;
+        }
+        
+        .file-icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+            color: #4e73df;
+        }
+        
+        .current-file {
+            margin-top: 15px;
+            padding: 12px;
+            background: #e8f4ff;
+            border-radius: 6px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .current-file a {
+            color: #4e73df;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .current-file a:hover {
+            text-decoration: underline;
+        }
+        
+        .btn {
+            background: #4e73df;
+            background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 16px;
+            width: 100%;
+            transition: all 0.3s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        }
+        
+        .form-footer {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e3e6f0;
+            text-align: center;
+            color: #6e707e;
+            font-size: 14px;
+        }
+        
+        .form-footer a {
+            color: #4e73df;
+            text-decoration: none;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                margin: 15px auto;
+            }
+            
+            .form-container {
+                padding: 20px;
+            }
+            
+            .header {
+                padding: 20px;
+            }
+            
+            h2 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>{% if purchase %}Edit{% else %}Create{% endif %} Purchase Bill</h2>
+            <p class="subtitle">Manage your purchase bills efficiently</p>
+            <a href="#" class="btn btn-secondary mt-3">← Back to My Packages</a> 
+        </div>
+        
+        <div class="form-container">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                {{ form.non_field_errors }}
+                
+                <div class="form-group">
+                    <label for="{{ form.supplier.id_for_label }}">{{ form.supplier.label }}</label>
+                    {{ form.supplier }}
+                    {% if form.supplier.errors %}
+                        <span class="error-message">{{ form.supplier.errors }}</span>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group">
+                    <label for="{{ form.invoice_number.id_for_label }}">{{ form.invoice_number.label }}</label>
+                    {{ form.invoice_number }}
+                    {% if form.invoice_number.errors %}
+                        <span class="error-message">{{ form.invoice_number.errors }}</span>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group">
+                    <label for="{{ form.date.id_for_label }}">{{ form.date.label }}</label>
+                    {{ form.date }}
+                    {% if form.date.errors %}
+                        <span class="error-message">{{ form.date.errors }}</span>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group">
+                    <label for="{{ form.amount.id_for_label }}">{{ form.amount.label }}</label>
+                    {{ form.amount }}
+                    {% if form.amount.errors %}
+                        <span class="error-message">{{ form.amount.errors }}</span>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group">
+                    <label>{{ form.pdf.label }}</label>
+                    <div class="file-upload">
+                        <label class="file-label">
+                            <i class="fas fa-file-pdf file-icon"></i>
+                            <span>Click to select a PDF file or drag and drop</span>
+                            <input type="file" name="pdf" accept="application/pdf" class="file-input">
+                        </label>
+                    </div>
+                    {% if purchase and purchase.pdf %}
+                        <div class="current-file">
+                            <i class="fas fa-paperclip"></i>
+                            <span>Current file: <a href="{{ purchase.pdf.url }}" target="_blank">View PDF</a></span>
+                        </div>
+                    {% endif %}
+                    {% if form.pdf.errors %}
+                        <span class="error-message">{{ form.pdf.errors }}</span>
+                    {% endif %}
+                </div>
+                
+                <button type="submit" class="btn">
+                    <i class="fas fa-save"></i> Save Purchase Bill
+                </button>
+            </form>
+            
+            <div class="form-footer">
+                <p>Need help? <a href="#">Contact support</a></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Simple JavaScript for file upload interaction
+        document.addEventListener('DOMContentLoaded', function() {
+            const fileInput = document.querySelector('.file-input');
+            const fileLabel = document.querySelector('.file-label');
+            
+            if (fileInput) {
+                fileInput.addEventListener('change', function(e) {
+                    if (this.files && this.files.length > 0) {
+                        fileLabel.querySelector('span').textContent = `Selected: ${this.files[0].name}`;
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

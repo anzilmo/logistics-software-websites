@@ -1,0 +1,204 @@
+{% extends 'base.html' %}
+
+{% load static %} 
+{% block title %}Our service{%endblock %}
+
+{% block content %}
+
+<section class="story">
+        <div class="container">
+            <div class="section-title">
+                <h2>Our Story</h2>
+                <p>Founded in Doha, we've spent over 12 years building a smarter way to move the things people love.</p>
+            </div>
+            <div class="story-content">
+                <div class="story-text">
+                    <p>Shop N Freight makes global shopping feel local. We give you free virtual addresses around the world so you can buy from your favorite stores and ship everything home to Qatar—fast, transparent, and stress-free.</p>
+                    <p>Today, we support shopping from major hubs like the USA, China, Turkey, the UAE, Bahrain, and more—bringing the world's marketplaces right to your doorstep.</p>
+                    <p>Our team in Doha is passionate about breaking down international shopping barriers and creating a seamless experience for our customers.</p>
+                </div>
+                <div class="story-image">
+                    <!-- This would be an actual image in production -->
+                    <div style="background-color: #e9ecef; height: 300px; display: flex; align-items: center; justify-content: center; color: var(--gray);">
+                        <img src="{% static 'images/slider/slider06.jpg' %}" alt="Example Image" />
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section class="services">
+        <div class="container">
+            <div class="section-title">
+                <h2>What We Bring to the Table</h2>
+                <p>Everything you need to shop globally with confidence</p>
+            </div>
+            <div class="services-grid">
+                <div class="service-card">
+                    <div class="service-icon">📍</div>
+                    <h3>Virtual Addresses, Free</h3>
+                    <p>Get free global virtual addresses so you can check out at international stores with ease. Shop like a local anywhere in the world.</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">✅</div>
+                    <h3>Quality Assurance Checks</h3>
+                    <p>We open & inspect your packages for authenticity and accuracy so you don't get scammed. Peace of mind included.</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">💸</div>
+                    <h3>Upfront Pricing</h3>
+                    <p>No "surprise fees" jump scares. We provide guaranteed upfront pricing so there are no surprises—ever.</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">🛡️</div>
+                    <h3>24/7 Support</h3>
+                    <p>Real humans on chat + email, not bots. Get help when you need it most with our top-rated customer support.</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">🚚</div>
+                    <h3>Fast Delivery to Qatar</h3>
+                    <p>We've optimized our logistics to get your packages to you as quickly as possible, with full tracking every step of the way.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Process Section -->
+    <section class="process">
+        <div class="container">
+            <div class="section-title">
+                <h2>How It Works</h2>
+                <p>Getting your global haul to Qatar is simpler than you think</p>
+            </div>
+            <div class="process-steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <h3>Register & Get Addresses</h3>
+                    <p>Sign up for free and get your virtual addresses in key shopping destinations worldwide.</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <h3>Shop & Ship to Us</h3>
+                    <p>Buy from any online store and use your Shop N Freight address as the shipping destination.</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <h3>We Inspect & Ship</h3>
+                    <p>We receive your packages, inspect them for quality and authenticity, then ship them to you.</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <h3>Choose Shipping & Receive</h3>
+                    <p>Select your shipping options and we deliver straight to your door in Qatar, fast.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Benefits Section -->
+    <section class="benefits">
+        <div class="container">
+            <div class="section-title">
+                <h2>Why Customers Choose Us</h2>
+                <p>The Shop N Freight difference that keeps our customers coming back</p>
+            </div>
+            <div class="benefits-grid">
+                <div class="benefit-item">
+                    <div class="benefit-icon">💰</div>
+                    <h3>Major Savings</h3>
+                    <p>Save up to 80% on shipping costs with our optimized logistics and bulk shipping options.</p>
+                </div>
+                <div class="benefit-item">
+                    <div class="benefit-icon">⚡</div>
+                    <h3>Speed & Reliability</h3>
+                    <p>Backed by 12+ years of experience with optimized shipping routes to Qatar.</p>
+                </div>
+                <div class="benefit-item">
+                    <div class="benefit-icon">🌍</div>
+                    <h3>Global Access</h3>
+                    <p>Shop from stores that don't normally ship to Qatar with our international addresses.</p>
+                </div>
+                <div class="benefit-item">
+                    <div class="benefit-icon">🏠</div>
+                    <h3>Local Presence</h3>
+                    <p>Based in Doha with real support, not overseas call centers that don't understand your needs.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Mission Section -->
+    <section class="mission">
+        <div class="container">
+            <div class="section-title">
+                <h2>Our Mission</h2>
+                <p>To make global shopping convenient and accessible for everyone—so you can buy what you love from anywhere, with confidence.</p>
+            </div>
+            <div style="text-align: center; max-width: 800px; margin: 0 auto;">
+                <p>At Shop N Freight, we believe that where you live shouldn't limit what you can buy. Our team is dedicated to breaking down international shopping barriers and creating a seamless, transparent experience that puts you in control of your global shopping journey.</p>
+                <p style="margin-top: 20px; font-weight: 500;">Based in: Doha, Qatar • Support: 24/7 live chat & email</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="container">
+            <h2>Ready to Start Shopping Globally?</h2>
+            <p>Join thousands of satisfied customers in Qatar who use Shop N Freight to access global marketplaces with ease and confidence.</p>
+            <a href="#" class="cta-button-large">Register & Get Your Free Addresses</a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>Shop N Freight</h3>
+                    <p>Your global shopping partner, making international shopping accessible to everyone in Qatar.</p>
+                    <div class="contact-info">
+                        <p>📍 Doha, Qatar</p>
+                        <p>📞 +974 XXXX XXXX</p>
+                        <p>✉️ hello@shopnfreight.com</p>
+                    </div>
+                </div>
+                <div class="footer-column">
+                    <h3>Services</h3>
+                    <ul>
+                        <li><a href="#">Virtual Addresses</a></li>
+                        <li><a href="#">Quality Inspection</a></li>
+                        <li><a href="#">Shipping to Qatar</a></li>
+                        <li><a href="#">Storage Services</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Company</h3>
+                    <ul>
+                        <li><a href="#">About Us</a></li>
+                        <li><a href="#">How It Works</a></li>
+                        <li><a href="#">Pricing</a></li>
+                        <li><a href="#">Blog</a></li>
+                        <li><a href="#">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Support</h3>
+                    <ul>
+                        <li><a href="#">Help Center</a></li>
+                        <li><a href="#">Shipping Calculator</a></li>
+                        <li><a href="#">Terms of Service</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Track Package</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>&copy; 2023 Shop N Freight. All rights reserved. shopnfreight.com</p>
+            </div>
+        </div>
+    </footer>
+
+{% endblock %}

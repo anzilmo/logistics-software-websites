@@ -1,0 +1,11 @@
+<ul>
+  {% for s in items %}
+    <li>
+      #{{ s.id }} — suit {{ s.suit_number }}
+      <a href="{% url 'warehouse:shipment_detail' s.id %}">detail</a> |
+      <a href="{% url 'warehouse:shipment_detail_by_suit' s.suit_number %}">by suit</a>
+    </li>
+  {% empty %}
+    <li>No shipments</li>
+  {% endfor %}
+</ul>

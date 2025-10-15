@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Sign Up{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/signup.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5" style="max-width: 500px;">
+   
+
+     <div class="container"> 
+ 
+  
+		<div class="animate one">
+			<span>C</span><span>R</span><span>E</span><span>A</span><span>T</span><span>E</span>&nbsp;
+			<span>A</span><span>C</span><span>C</span><span>O</span><span>U</span><span>N</span><span>T</span>
+		</div>
+
+
+    <!-- Show Django messages -->
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+      {% endfor %}
+    {% endif %}
+
+    <form method="POST" class="card p-4 shadow-sm rounded">
+        {% csrf_token %}
+
+        <div class="mb-3">
+            <label for="username" class="form-label">Username</label>
+            <input 
+                type="text" 
+                class="form-control" 
+                id="username" 
+                name="username" 
+                placeholder="Enter username" 
+                value="{{ request.POST.username|default:'' }}"
+                required>
+        </div>
+
+        <div class="mb-3">
+            <label for="password" class="form-label">Password</label>
+            <input 
+                type="password" 
+                class="form-control" 
+                id="password" 
+                name="password" 
+                placeholder="Enter password" 
+                required>
+        </div>
+
+        <div class="mb-3">
+            <label for="confirm_password" class="form-label">Confirm Password</label>
+            <input 
+                type="password" 
+                class="form-control" 
+                id="confirm_password" 
+                name="confirm_password" 
+                placeholder="Confirm password" 
+                required>
+        </div>
+
+        <button type="submit" class="btn btn-primary w-100">Sign Up</button>
+
+        <p class="text-center mt-3">
+            Already have an account? 
+            <a href="#">Login here</a>.
+        </p>
+    </form>
+</div>
+
+
+{% endblock %}

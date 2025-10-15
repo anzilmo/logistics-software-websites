@@ -1,0 +1,46 @@
+{% load static %}
+{% extends "main.html" %}
+
+{% block title %}Purchase {{ purchase.invoice_number }} - Details{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h1 class="card-title">Purchase {{ purchase.invoice_number }}</h1>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5>Purchase Information</h5>
+                            <p><strong>Invoice Number:</strong> {{ purchase.invoice_number }}</p>
+                            <p><strong>Supplier:</strong> {{ purchase.supplier }}</p>
+                            <p><strong>Date:</strong> {{ purchase.date }}</p>
+                            <p><strong>Amount:</strong> ${{ purchase.amount }}</p>
+                            <p><strong>Status:</strong> <span class="badge bg-success">Paid</span></p>
+                        </div>
+                        <div class="col-md-6">
+                            {% if purchase.pdf %}
+                                <h5>Document</h5>
+                                <p>
+                                    <a href="{% url 'warehouse_purchase_download' purchase.pk %}" class="btn btn-primary" target="_blank">
+                                        <i class="fas fa-download"></i> Download PDF
+                                    </a>
+                                    <a href="{{ purchase.pdf.url }}" class="btn btn-secondary" target="_blank" rel="noopener">
+                                        <i class="fas fa-external-link-alt"></i> Open in New Tab
+                                    </a>
+                                </p>
+                                <iframe src="{{ purchase.pdf.url }}#toolbar=0" width="100%" height="400px" style="border: 1px solid #ddd;"></iframe>
+                            {% else %}
+                                <p>No PDF attached.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

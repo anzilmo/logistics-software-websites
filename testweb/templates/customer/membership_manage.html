@@ -1,0 +1,191 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Subscription Picker</title>
+
+  <!-- Font (optional) + Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet"/>
+
+  <style>
+    /* ===== COMPILED CSS (from your SCSS) ===== */
+    :root{
+      --primary-color:#ff6600d8;
+      --secondary-color:#ff6600d8;
+      --decor-color:#000000;
+      --font:"museo-sans",sans-serif;
+    }
+
+    *{
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
+      -webkit-transition:.2s ease-in-out;
+      -moz-transition:.2s ease-in-out;
+      -o-transition:.2s ease-in-out;
+      transition:.2s ease-in-out;
+      font-family:var(--font), "Montserrat", sans-serif;
+      font-weight:400;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      color:var(--primary-color);
+    }
+    *:focus{ outline:none; }
+
+    body{ background-color:#ff6600d8; }
+
+    #wrapper{
+      position:absolute; top:50%; margin-top:-240px; left:0; width:100%;
+    }
+
+    #container{
+      width:720px; height:480px; margin:0 auto;
+      box-shadow:1px 1px 10px 2px rgba(0,0,0,0.2);
+      border-radius:5px; overflow:hidden;
+      background:#2EBD59; /* fallback behind columns */
+    }
+
+    .information-column{
+      width:40%; height:100%; overflow:hidden; float:left; position:relative;
+      background-image:url('https://enwaara.se/codepen/music.jpeg');
+      background-repeat:no-repeat; background-position:center; background-size:cover;
+    }
+
+    .content{
+      width:100%; height:100%; padding:30px;
+      background:linear-gradient(135deg, rgba(241,242,246,0.9) 0%, rgba(227,228,232,0.9) 45%, rgba(214,215,219,0.9) 100%);
+      position:relative;
+    }
+    .content h1{
+      width:100%; margin-top:32px; font-size:2em; font-weight:700; letter-spacing:2px; margin-bottom:8px;
+      color:var(--decor-color); text-shadow:-1px 1px 2px var(--secondary-color);
+    }
+    .content p{
+      width:62%; font-size:.8em; letter-spacing:1px; line-height:1.6em;
+      position:absolute; bottom:30px; left:30px; color:#a4b0be;
+    }
+
+    .logo{ width:40%; height:auto; }
+
+    .form-column{
+      width:60%; height:100%; padding:50px; float:right;
+      background:linear-gradient(45deg, rgba(33, 23, 87, 1) 0%, rgba(61, 43, 104, 1) 54%, rgba(63, 8, 109, 1) 100%);
+    }
+
+    .subscribtion{
+      width:100%; overflow:hidden; padding:12px; margin-bottom:24px;
+      border:2px solid var(--primary-color); border-radius:4px; cursor:pointer;
+      background:transparent;
+    }
+    .subscribtion:nth-child(1){ margin-top:24px; }
+    .subscribtion h2{
+      width:60%; font-weight:700; font-size:1.4em; letter-spacing:2px;
+      padding-bottom:8px; border-bottom:1px solid var(--primary-color); margin-bottom:8px;
+    }
+    .subscribtion p{ width:80%; font-size:.8em; line-height:1.4em; }
+    .subscribtion:hover{ box-shadow:0 0 10px 0 var(--secondary-color); }
+
+    .subscribtion.active{
+      background-color:var(--primary-color);
+    }
+    .subscribtion.active:nth-child(1){ margin-top:0; }
+    .subscribtion.active h2{ color:var(--decor-color); border-color:var(--decor-color); }
+    .subscribtion.active p{ color:var(--decor-color); }
+
+    .subscribtion.hidden{
+      height:0; margin:0; padding-bottom:0; padding-top:0; opacity:0;
+    }
+
+    .form{ width:100%; opacity:0; transition:opacity .2s ease-in-out; }
+    .form.active{ opacity:1; }
+
+    .form label{
+      display:block; width:100%; font-size:.6em; text-transform:uppercase; letter-spacing:1px;
+    }
+    .form input{
+      width:100%; padding:8px; border:none; background:none; border-bottom:1px solid var(--primary-color);
+      margin-bottom:12px; font-size:.8em; color:var(--primary-color); letter-spacing:1px;
+    }
+    .form input::placeholder{ color:#009432; transition:.2s ease-in-out; }
+    .form input:focus::placeholder{ color:var(--primary-color); }
+
+    .payment{ margin-top:12px; }
+
+    .btn{
+      width:30.33%; float:left; margin-right:4%; margin-top:12px; height:40px;
+      padding-top:12px; text-align:center; background-color:var(--primary-color);
+      color:var(--decor-color); font-weight:700; font-size:.8em; letter-spacing:2px;
+      border-radius:4px; border:none; cursor:pointer; user-select:none;
+    }
+    .btn i{ margin-left:8px; }
+
+    .klarna{ background-color:#fa82a0; display:flex; align-items:center; justify-content:center; }
+    .klarna img{ width:50%; height:auto; margin-top:2px; }
+    .klarna:hover, .klarna.active{ background-color:#F9688D; }
+
+    .paypal{ background-color:#009cde; display:flex; align-items:center; justify-content:center; }
+    .paypal img{ width:60%; height:auto; }
+    .paypal:hover, .paypal.active{ background-color:#008DCE; }
+
+    .card{ margin-right:0; }
+    .card:hover, .card.active{ box-shadow:0 0 10px 0 var(--secondary-color); }
+
+    .free-button{ width:100%; margin-right:0; margin-top:8px; display:none; }
+    .free-button:hover{ box-shadow:0 0 10px 0 var(--secondary-color); }
+    .free-button.active{ display:block; }
+
+    .next{ width:100%; margin-right:0; margin-top:12px; }
+    .next i{ color:var(--decor-color); margin-left:8px; }
+    .next:hover i{ margin-left:12px; }
+
+    .free-form.hidden{ height:0; opacity:0; display:none; }
+
+    /* simple responsiveness so it doesn’t break on mobile */
+    @media (max-width: 760px){
+      #wrapper{ position:static; margin:0; padding:16px 0; }
+      #container{ width:100%; height:auto; }
+      .information-column, .form-column{ float:none; width:100%; height:auto; }
+      .content p{ position:static; width:100%; margin-top:12px; }
+      .btn{ width:100%; margin-right:0; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="wrapper">
+  <div id="container">
+
+    <div class="information-column">
+      <div class="content">
+        <img class="logo" src="{% static 'images/logos/logo2.png' %}" alt="Logo"/>
+        <h1>Choose a subscription and start the ShopNfreight</h1>
+        {% comment %} <p>Find all your favorite tracks and create the best playlist ever.</p> {% endcomment %}
+      </div>
+    </div>
+
+    <div class="form-column">
+
+      <form class="form active" action="{% url 'customer:membership_manage' %}" method="post">
+        {% csrf_token %}
+        {% for tier in tiers %}
+        <div class="subscribtion {% if current_tier and current_tier.name == tier.name %}active{% endif %}">
+          <h2>{{ tier.name }}</h2>
+          <p>{{ tier.description }}</p>
+          <input type="radio" name="plan" value="{{ tier.name }}" style="display:none;" {% if current_tier and current_tier.name == tier.name %}checked{% endif %}>
+        </div>
+        {% endfor %}
+
+        <div class="next btn">Update Membership <i class="fa fa-angle-right"></i></div>
+      </form>
+
+    </div>
+     <div class="next btn">Back to Dashboard <i class="fa fa-angle-right"></i></div>
+  </div>
+</div>
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+</body>
+</html>

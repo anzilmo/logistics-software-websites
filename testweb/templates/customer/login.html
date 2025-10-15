@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="login-container">
+    <br>
+    <div class="animate one">
+        <span>L</span><span>o</span><span>g</span><span>i</span><span>n</span>&nbsp;
+    </div>
+    <br>
+    {% if messages %}
+    <div class="mt-3">
+        {% for message in messages %}
+        <div class="alert alert-danger" role="alert">{{ message }}</div>
+        {% endfor %}
+    </div>
+    <br>
+    {% endif %}
+    <form class="form-group" method="POST">
+        {% csrf_token %}
+        <input class="form-control" type="text" name="username" placeholder="Username" required /><br>
+        <input class="form-control" type="password" name="password" placeholder="Password" required /><br>
+        <button class="btn btn-success" type="submit">Login</button>
+    </form>
+    <p>Creating new account? <a href="#">Sign Up</a></p>
+    <p><a href="#">Forgot password</a></p>
+</div>
+{% endblock %}

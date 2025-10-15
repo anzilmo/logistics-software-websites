@@ -1,0 +1,253 @@
+{% extends 'main.html' %} 
+{% load static %} 
+{% block title %}WarehouseDashboard{% endblock %} 
+{% block content %}
+
+<style>
+
+.shipment-card {
+  max-width: 500px;
+  margin: 40px auto;
+  padding: 24px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.07);
+  font-family: 'Segoe UI', Arial, sans-serif;
+}
+
+.shipment-card h3,
+.shipment-card h4 {
+  margin-top: 0;
+  color: #284b63;
+}
+
+.shipment-card p {
+  margin: 8px 0;
+  color: #394867;
+}
+
+.shipment-card ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.shipment-card li {
+  background: #f4f6fa;
+  margin-bottom: 12px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border-left: 5px solid #4d8fac;
+  color: #263859;
+}
+
+.shipment-card li strong {
+  color: #0e7490;
+  font-weight: 600;
+}
+
+.shipment-card li:last-child {
+  margin-bottom: 0;
+}
+
+@media (max-width: 600px) {
+  .shipment-card {
+    padding: 16px;
+    max-width: 100%;
+  }
+}
+</style>
+<main class= " main-container"
+<div class="container">
+  <!-- Sidebar -->
+  <aside class="sidebar"></aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Header -->
+    <div class="header">
+      <div class="welcome">
+        <h1>Warehouse In {{ warehouse.country_name }}</h1>
+      </div>
+    </div>
+
+    {# bell in templates/warehouse/dashboard.html #}
+    <div class="position-relative">
+      <a
+        href="{% url 'warehouse:mark_notifications_read' %}"
+        class="text-decoration-none"
+      >
+        <div class="notification-bell position-relative">
+          <span
+            class="notification-count badge bg-danger position-absolute top-0 start-100 translate-middle rounded-pill"
+          >
+            {{ notif_count }}
+          </span>
+        </div>
+      </a>
+    </div>
+    
+
+    {# notifications list #}
+    <div class="card my-3">
+      <div class="card-header d-flex justify-content-between">
+        <span>Notifications</span>
+        <a
+          class="btn btn-sm btn-outline-secondary"
+          href="{% url 'warehouse:mark_notifications_read' %}"
+          >Mark all read</a
+        >
+      </div>
+      <ul class="list-group list-group-flush">
+        {% for n in notifications %}
+        <li
+          class="list-group-item d-flex justify-content-between align-items-center"
+        >
+          <span>{{ n.text }}</span>
+          {% comment %} <a class="btn btn-sm btn-primary"href="{% url 'customer:shipment_rates' n.shipment.id %}">  View</a> {% endcomment %}
+        </li>
+        {% empty %}
+        <li class="list-group-item text-muted">No new notifications</li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <!-- Dashboard Widgets -->
+    <div class="dashboard-widgets">
+      <div class="widget">
+        <div class="widget-header">
+          <h3 class="widget-title">Total Inventory</h3>
+          <div class="widget-icon inventory-icon">
+            <i class="fas fa-boxes"></i>
+          </div>
+        </div>
+        <div class="widget-value">{{ total_inventory }}</div>
+        <p class="widget-text">{{ inventory_change_text }}</p>
+      </div>
+
+      <div class="widget">
+        <div class="widget-header">
+          <h3 class="widget-title">Pending Orders</h3>
+          <div class="widget-icon orders-icon">
+            <i class="fas fa-clipboard-list"></i>
+          </div>
+        </div>
+        <div class="widget-value">{{ pending_orders }}</div>
+        <p class="widget-text">{{ pending_orders_text }}</p>
+      </div>
+
+      <div class="widget">
+        <div class="widget-header">
+          <h3 class="widget-title">Today's Shipments</h3>
+          <div class="widget-icon shipping-icon">
+            <i class="fas fa-shipping-fast"></i>
+          </div>
+        </div>
+        <div class="widget-value">{{ todays_shipments }}</div>
+        <p class="widget-text">{{ shipments_text }}</p>
+      </div>
+
+      <div class="widget">
+        <div class="widget-header">
+          <h3 class="widget-title">Revenue</h3>
+          <div class="widget-icon revenue-icon">
+            <i class="fas fa-dollar-sign"></i>
+          </div>
+        </div>
+        <div class="widget-value">${{ revenue }}</div>
+        <p class="widget-text">{{ revenue_text }}</p>
+      </div>
+    </div>
+
+
+      
+
+    <!-- Recent Activity -->
+    <div class="recent-activity">
+      <div class="summary-header">
+        <h3 class="summary-title">Recent Activity</h3>
+        <a href="#" class="view-all">View All</a>
+      </div>
+      <ul class="activity-list">
+        {% for activity in recent_activity %}
+        <li class="activity-item">
+          <div
+            class="activity-icon"
+            style="background: {{ activity.bg_color }}; color: {{ activity.icon_color }};"
+          >
+            <i class="{{ activity.icon }}"></i>
+          </div>
+          <div class="activity-details">
+            <h4>{{ activity.title }}</h4>
+            <p>{{ activity.description }}</p>
+          </div>
+          <div class="activity-time">{{ activity.time }}</div>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <!-- Shipments List -->
+    <div class="card mt-4">
+      <div class="card-header">
+        <h3 class="card-title">Recent Shipments</h3>
+        <a href="{% url 'warehouse:shipment_list' %}" class="btn btn-sm btn-outline-primary">View All</a>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th>Suit Number</th>
+                <th>Selected Courier</th>
+                <th>Total Price</th>
+                <th>Total Weight (kg)</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for shipment in shipments %}
+              <tr>
+                <td>{{ shipment.suit_number }}</td>
+                <td>
+                  {% if shipment.selected_courier %}
+                    {{ shipment.selected_courier.name }}
+                  {% else %}
+                    <span class="text-muted">Not Selected</span>
+                  {% endif %}
+                </td>
+                <td>
+                  {% if shipment.selected_price %}
+                    ${{ shipment.selected_price }}
+                  {% else %}
+                    <span class="text-muted">—</span>
+                  {% endif %}
+                </td>
+                <td>
+                  {% if shipment.weight_kg %}
+                    {{ shipment.weight_kg }}
+                  {% elif shipment.weight %}
+                    {{ shipment.weight }}
+                  {% else %}
+                    <span class="text-muted">—</span>
+                  {% endif %}
+                </td>
+                <td>
+                  <a href="{% url 'warehouse:shipment_detail' shipment.suit_number %}" class="btn btn-sm btn-primary">View Details</a>
+                </td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="5" class="text-center text-muted">No shipments found.</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+{% endblock %}

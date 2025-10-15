@@ -1,0 +1,38 @@
+{% extends "ad_navbar.html" %}
+{% load humanize %}
+{% block content %}
+<div class="container py-4">
+  <a href="{% url 'customer:tracking_lookup' %}" class="btn btn-link mb-3">&larr; Back to tracking</a>
+
+  <div class="card mb-3">
+    <div class="card-body">
+      <h4>
+        {% if shipment.suit_number %}{{ shipment.suit_number }}{% else %}Shipment #{{ shipment.pk }}{% endif %}
+        <small class="text-muted">#{{ shipment.pk }}</small>
+      </h4>
+      <p class="mb-1"><strong>Tracking number:</strong> {{ shipment.tracking_number|default:"—" }}</p>
+      <p class="mb-1"><strong>Courier:</strong> {% if shipment.selected_courier %}{{ shipment.selected_courier.name }}{% else %}&mdash;{% endif %}</p>
+      <p class="mb-1"><strong>Status:</strong> {{ shipment.get_status_display }}</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><strong>Tracking history</strong></div>
+    <div class="card-body">
+      {% if history %}
+        <ul class="list-unstyled">
+          {% for ev in history %}
+            <li class="mb-3">
+              <div><small class="text-muted">{{ ev.created_at|naturaltime }}</small></div>
+              <div><strong>{{ ev.status }}</strong> — {{ ev.message }}</div>
+              {% if ev.location %}<div class="text-muted small">{{ ev.location }}</div>{% endif %}
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="text-muted mb-0">No tracking events yet.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

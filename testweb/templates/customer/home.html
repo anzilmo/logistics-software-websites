@@ -1,0 +1,266 @@
+{% extends 'base.html' %}
+
+{% load static %} 
+{% block title %}Home Page{%endblock %}
+
+{% block content %}
+<div class="carousel">
+  <!-- list item -->
+  <div class="list">
+    <div class="item">
+      <img src="{% static 'images/slider/slider06.jpg' %}" />
+      <div class="content">
+        <div class="author">LUNDEV</div>
+        <div class="title">Ship With</div>
+        <div class="topic">SHOP N FREIGHT</div>
+        <div class="des">
+          <!-- lorem 50 -->
+          Lorem ipsum dolor, sit amet consectetur adipisicing elit. Ut sequi,
+          rem magnam nesciunt minima placeat, itaque eum neque officiis unde,
+          eaque optio ratione aliquid assumenda facere ab et quasi ducimus aut
+          doloribus non numquam. Explicabo, laboriosam nisi reprehenderit
+          tempora at laborum natus unde. Ut, exercitationem eum aperiam illo
+          illum laudantium?
+        </div>
+        <div class="buttons">
+          <button>SEE MORE</button>
+          <button>SUBSCRIBE</button>
+        </div>
+      </div>
+    </div>
+    <div class="item">
+      <img src="{% static 'images/slider/slider1.jpg' %}" />
+      <div class="content">
+        <div class="author">LUNDEV</div>
+        <div class="title">Deliver With Ease</div>
+        <div class="topic">SHOP N FREIGHT</div>
+        <div class="des">
+          Lorem ipsum dolor, sit amet consectetur adipisicing elit. Ut sequi,
+          rem magnam nesciunt minima placeat, itaque eum neque officiis unde,
+          eaque optio ratione aliquid assumenda facere ab et quasi ducimus aut
+          doloribus non numquam. Explicabo, laboriosam nisi reprehenderit
+          tempora at laborum natus unde. Ut, exercitationem eum aperiam illo
+          illum laudantium?
+        </div>
+        <div class="buttons">
+          <button>SEE MORE</button>
+          <button>SUBSCRIBE</button>
+        </div>
+      </div>
+    </div>
+    <div class="item">
+      <img src="{% static 'images/slider/slider3.jpg' %}" />
+      <div class="content">
+        <div class="author">LUNDEV</div>
+        <div class="title">Freight Made Simple</div>
+        <div class="topic">SHOP N FREIGHT</div>
+        <div class="des">
+          Lorem ipsum dolor, sit amet consectetur adipisicing elit. Ut sequi,
+          rem magnam nesciunt minima placeat, itaque eum neque officiis unde,
+          eaque optio ratione aliquid assumenda facere ab et quasi ducimus aut
+          doloribus non numquam. Explicabo, laboriosam nisi reprehenderit
+          tempora at laborum natus unde. Ut, exercitationem eum aperiam illo
+          illum laudantium?
+        </div>
+        <div class="buttons">
+          <button>SEE MORE</button>
+          <button>SUBSCRIBE</button>
+        </div>
+      </div>
+    </div>
+    <div class="item">
+      <img src="{% static 'images/slider/slider06.jpg' %}"/>
+      <div class="content">
+        <div class="author">LUNDEV</div>
+        <div class="title">Ship Fast Today</div>
+        <div class="topic">SHOP N FREIGHT</div>
+        <div class="des">
+          Lorem ipsum dolor, sit amet consectetur adipisicing elit. Ut sequi,
+          rem magnam nesciunt minima placeat, itaque eum neque officiis unde,
+          eaque optio ratione aliquid assumenda facere ab et quasi ducimus aut
+          doloribus non numquam. Explicabo, laboriosam nisi reprehenderit
+          tempora at laborum natus unde. Ut, exercitationem eum aperiam illo
+          illum laudantium?
+        </div>
+        <div class="buttons">
+          <button>SEE MORE</button>
+          <button>SUBSCRIBE</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- list thumnail -->
+  <div class="thumbnail">
+    <div class="item">
+      <img src="{% static 'images/slider/slider06.jpg' %}" />
+      <div class="content">
+        <div class="title">Ship With</div>
+        <div class="description">Description</div>
+      </div>
+    </div>
+    <div class="item">
+      <img src="{% static 'images/slider/slider2.jpg' %}" />
+      <div class="content">
+        <div class="title">Deliver With Ease</div>
+        <div class="description">Description</div>
+      </div>
+    </div>
+    <div class="item">
+      <img src="{% static 'images/slider/slider3.jpg' %}" />
+      <div class="content">
+        <div class="title">Freight Made Simple</div>
+        <div class="description">Description</div>
+      </div>
+    </div>
+    <div class="item">
+      <img src="{% static 'images/slider/slider4.jpg' %}" />
+      <div class="content">
+        <div class="title">Ship Fast Today</div>
+        <div class="description">Description</div>
+      </div>
+    </div>
+  </div>
+  <!-- next prev -->
+
+  <div class="arrows">
+    <button id="prev"><</button>
+    <button id="next">></button>
+  </div>
+  <!-- time running -->
+  <div class="time"></div>
+</div>
+
+
+
+<!-- Info Section -->
+    <section class="info-wrapper">
+        <div class="container">
+            <div class="info-header">
+                <h1>How CONNECTED Works</h1>
+                <p>Our simple process makes international shipping effortless and convenient for you</p>
+            </div>
+            
+            <div class="info-steps">
+                <div class="info-step">
+                    <div class="info-step-number">1</div>
+                    <div class="info-step-icon">
+                        <i class="fas fa-user-plus"></i>
+                    </div>
+                    <h3 class="info-step-title">Create an Account</h3>
+                    <p class="info-step-description">Sign up to get your own CONNECTED overseas shipping addresses</p>
+                </div>
+                
+                <div class="info-connector">
+                    <div class="info-arrow"><i class="fas fa-arrow-right"></i></div>
+                </div>
+                
+                <div class="info-step">
+                    <div class="info-step-number">2</div>
+                    <div class="info-step-icon">
+                        <i class="fas fa-shopping-cart"></i>
+                    </div>
+                    <h3 class="info-step-title">Start Shopping</h3>
+                    <p class="info-step-description">Shop online & send purchases to your overseas address</p>
+                </div>
+                
+                <div class="info-connector">
+                    <div class="info-arrow"><i class="fas fa-arrow-right"></i></div>
+                </div>
+                
+                <div class="info-step">
+                    <div class="info-step-number">3</div>
+                    <div class="info-step-icon">
+                        <i class="fas fa-credit-card"></i>
+                    </div>
+                    <h3 class="info-step-title">Declare & Pay</h3>
+                    <p class="info-step-description">Declare & pay when packages arrive to warehouse</p>
+                </div>
+                
+                <div class="info-connector">
+                    <div class="info-arrow"><i class="fas fa-arrow-right"></i></div>
+                </div>
+                
+                <div class="info-step">
+                    <div class="info-step-number">4</div>
+                    <div class="info-step-icon">
+                        <i class="fas fa-truck"></i>
+                    </div>
+                    <h3 class="info-step-title">Home Delivery</h3>
+                    <p class="info-step-description">Receive packages at your doorstep within 5-6 working days</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    {% comment %} Why choice  {% endcomment %}
+    <section class="container-why">
+        <div class="text-content">
+            <h1 class="h-why">Why use SHOPNFREIGHT?</h1>
+            <p class="subtitle">_________________________</p>
+            <p class="description-why">
+                We give you what you are looking for, and more. We provide
+                an international parcel forwarding service offering you the advantage of shopping from the UK and the US.
+            </p>
+
+            <div class="shipping-options">
+                <div class="option">
+                    <h2>Shop Without Borders</h2>
+                    <p class="p-why">Enjoy access to your favorite brands and stores in the
+                        UK and US, even if they don't ship directly to your country.
+                        We make global shopping simple and seamless.</p>
+                </div>
+                <div class="option">
+                    <h2>Fast & Reliable Delivery</h2>
+                    <p class="p-why">Get your parcels delivered quickly and securely to your doorstep.
+                        Our trusted shipping network ensures peace of mind every time you shop abroad.</p>
+                </div>
+            </div>
+            
+            <button class="cta-button" id="learnMoreBtn">Learn More</button>
+        </div>
+
+        <div class="image-content">
+            <!-- Placeholder image since we can't access the original -->
+            <img src="{%static 'images/slider/packages.jpeg' %}" alt="Shipping workspace" />
+        </div>
+    </section>
+
+
+    
+    {% comment %} <section class="container-why">
+    <div class="text-content">
+      <h1 class = "h-why">Why use SHOP N FREIGHT?</h1>
+      <p class="subtitle">_________________________</p>
+      <p class="description-why">
+        We give you what you are looking for, and more. We provide
+         an international parcel forwarding service offering you the advantage of shopping from the UK and the US.
+      </p>
+
+      <div class="shipping-options">
+        <div class="option">
+          <h2>Shop Without Borders</h2>
+          <p class = "p-why">Enjoy access to your favorite brands and stores in the
+            UK and US, even if they don’t ship directly to your country.
+            We make global shopping simple and seamless.</p>
+        </div>
+        <div class="option">
+          <h2>Fast & Reliable Delivery</h2>
+          <p class = "p-why">Get your parcels delivered quickly and securely to your doorstep.
+             Our trusted shipping network ensures peace of mind every time you shop abroad.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="image-content">
+      <img src="{%static 'images/slider/packages.jpeg' %}" alt="Shipping workspace" />
+    </div>
+  </section> {% endcomment %}
+
+
+
+{% endblock %} {% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="{% static 'js/app.js' %}"></script>
+<script src="{% static 'js/base.js' %}"></script>
+{% endblock %} 

@@ -1,0 +1,256 @@
+{% extends 'ad_navbar.html' %}
+
+
+{% load static %} 
+{% block title %}Dashboard{%endblock %} 
+
+{% block content %}
+
+<div class="dashboard-container">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="user-profile">
+      <h3>{{ request.user.username }}</h3>
+      <h3>User ID: {{ request.user.profile.user_id_custom }}</h3>
+      {% if current_tier %}
+      <h4>Membership: {{ current_tier.name }}</h4>
+      {% else %}
+      <h4>No Active Membership</h4>
+      {% endif %}
+    </div>
+
+    <ul class="nav-links">
+      <li>
+        <a href="#" class="active"
+          ><i class="fas fa-home"></i> <span>Dashboard</span></a
+        >
+      </li>
+      <li>
+        <a href="{% url 'customer:shipment_list' %}"
+          ><i class="fas fa-box"></i> <span>My Packages</span></a
+        >
+      </li>
+      <li>
+        <a href="{% url 'customer:membership_manage' %}">
+          <i class="fas fa-id-card"></i><span>Membership</span>
+        </a>
+      </li>
+      <li>
+        <a href="{% url 'customer:console_list' %}"
+          ><i class="fas fa-credit-card"></i><span>Console</span></a
+        >
+      </li>
+      <li>
+        <a href="{% url 'customer:purchase_list'  %}"
+          ><i class="fas fa-cloud-upload-alt"></i></i><span>Invoice</span></a
+        >
+      </li>
+      <li>
+        <a href="#"><i class="fas fa-cog"></i> <span>Settings</span></a>
+      </li>
+      <li>
+        <a href="#"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a>
+      </li>
+    </ul>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+  
+    <!-- Header -->
+    <div class="header">
+      <div class="search-box" style="position:relative;">
+  <i class="fas fa-search"></i>
+  <input id="shipment-search-input" type="text" placeholder="Search packages, orders..." autocomplete="off" />
+  <ul id="shipment-search-results" class="search-results dropdown-menu" style="display:none; position:absolute; left:0; right:0; z-index:1000; max-height:320px; overflow:auto; margin-top:8px;"></ul>
+</div>
+      <div class="header-right">
+        <div class="notification-bell">
+          <i class="fas fa-bell"></i>
+          <span class="notification-count">0</span>
+        </div>
+        <div class="user-menu">
+          <span>{{ request.user.username }}</span>
+        </div>
+      </div>
+    </div>
+    <!-- Dashboard Content -->
+    <h1 class="dashboard-title">Dashboard</h1>
+
+    <div class="welcome-banner">
+      <h2>Welcome {{ request.user.username }}</h2>
+      <p>
+        You have {{ total_shipments }} packages in transit and {{delivered}} 
+      </p>
+    </div>
+
+    <!-- Single-Column Stats (4 cards) -->
+<div class="stats-stack">
+  <div class="stat-card">
+    <div class="stat-icon purple"><i class="fas fa-box"></i></div>
+    <div class="stat-info">
+      <h3>{{ total_shipments }}</h3>
+      <p>Total Packages</p>
+    </div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-icon blue"><i class="fas fa-shipping-fast"></i></div>
+    <div class="stat-info">
+      <h3>{{ in_transit }}</h3>
+      <p>In Transit</p>
+    </div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-icon green"><i class="fas fa-check-circle"></i></div>
+    <div class="stat-info">
+      <h3>{{ delivered }}</h3>
+      <p>Delivered</p>
+    </div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-icon blue"><i class="fas fa-box-open"></i></div>
+    <div class="stat-info">
+      <h3>{{ accepted }}</h3>
+      <p>Accepted</p>
+    </div>
+  </div>
+</div>
+
+
+
+    <!-- Upload Section -->
+
+    <div class="upload-container">
+      <h1><i class="fas fa-file-invoice"></i> Invoice Upload</h1>
+      <div class="upload-section">
+        <a href="{% url 'customer:purchase_create' %}" class="upload-button">
+          <i class="fas fa-cloud-upload-alt"></i>
+          <span>Upload Details</span>
+        </a>
+      </div>
+    </div>
+
+  <!-- Countries Section -->
+   <div class="section-header">
+      <h1>Your Warehouse Addresses</h1>
+    </div>
+    <div class="country-grid">
+      {% for country in countries %}
+      <div class="country-card">
+        <img
+          src="{{ country.country_logo.url }}"
+          alt="{{ country.country_name }}"/>
+        <h2>{{ country.country_name }}</h2>
+        <h3>Username: {{ request.user.username }}</h3>
+        <p>
+          <i class="fas fa-id-badge"></i> User ID: {{request.user.profile.user_id_custom }}
+        </p>
+        <p>
+          <i class="fas fa-map-marker-alt"></i> {{ country.city }}, {{country.state }} - {{ country.zip_code }}
+        </p>
+        <p><i class="fas fa-phone"></i> {{ country.phone_number }}</p>
+        <p><i class="fas fa-envelope"></i>{{ country.email }}</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  
+  <!-- End main-content -->
+</div>
+
+
+<script>
+(function () {
+  const container = document.querySelector('.search-box');
+  const input = document.getElementById('shipment-search-input');
+  const resultsWrap = document.getElementById('shipment-search-results');
+  const searchUrl = container.getAttribute('data-search-url');
+  let timer;
+
+  function escapeHtml(s) { return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m]); }
+
+  function renderResults(items) {
+    if (!items || items.length === 0) {
+      resultsWrap.style.display = 'none';
+      resultsWrap.innerHTML = '';
+      return;
+    }
+    resultsWrap.innerHTML = items.map(it => {
+      const title = escapeHtml(it.suit_number || it.tracking_number || ('Shipment #' + it.id));
+      const status = it.status ? `<div class="small text-muted">${escapeHtml(it.status)}${it.courier ? ' • ' + escapeHtml(it.courier) : ''}</div>` : '';
+      return `<li class="dropdown-item" data-url="${escapeHtml(it.url)}" style="cursor:pointer; padding:8px 12px; border-bottom:1px solid rgba(0,0,0,0.03);">
+                <div><strong>${title}</strong></div>${status}
+              </li>`;
+    }).join('');
+    resultsWrap.style.display = 'block';
+  }
+
+  async function fetchResults(q) {
+    if (!q || q.length < 2) { renderResults([]); return; }
+    const u = new URL(searchUrl, window.location.origin);
+    u.searchParams.set('q', q);
+    try {
+      const resp = await fetch(u.toString(), {
+        headers: {'X-Requested-With': 'XMLHttpRequest'},
+        credentials: 'same-origin'  // ensure cookies (session) are sent
+      });
+      if (resp.status === 401 || resp.status === 302) {
+        // not logged in -> redirect to login page
+        window.location.href = '/accounts/login/?next=' + encodeURIComponent(window.location.pathname);
+        return;
+      }
+      if (!resp.ok) {
+        console.error('Search returned error', resp.status);
+        renderResults([]);
+        return;
+      }
+      const data = await resp.json();
+      renderResults(data.results || []);
+    } catch (err) {
+      console.error('Search fetch error', err);
+      renderResults([]);
+    }
+  }
+
+  input.addEventListener('input', function (e) {
+    clearTimeout(timer);
+    timer = setTimeout(() => fetchResults(e.target.value.trim()), 250);
+  });
+
+  resultsWrap.addEventListener('click', function (e) {
+    const li = e.target.closest('li[data-url]');
+    if (!li) return;
+    window.location.href = li.getAttribute('data-url');
+  });
+
+  document.addEventListener('click', function (e) {
+    if (!container.contains(e.target)) {
+      resultsWrap.style.display = 'none';
+    }
+  });
+
+  input.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') resultsWrap.style.display = 'none';
+    if (e.key === 'Enter') {
+      const first = resultsWrap.querySelector('li[data-url]');
+      if (first) window.location.href = first.getAttribute('data-url');
+    }
+  });
+})();
+</script>
+
+<style>
+.search-results li.dropdown-item:hover { background:#f7f7f7; }
+.search-box i.fas { position:absolute; left:10px; top:50%; transform:translateY(-50%); color:#888; }
+.search-box input { padding:8px 12px 8px 34px; width:100%; box-sizing:border-box; }
+</style>
+{% endblock %}
+ {% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="{% static 'js/app.js' %}"></script>
+<script src="{% static 'js/base.js' %}"></script>
+{% endblock %} 
+

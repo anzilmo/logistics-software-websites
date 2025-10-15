@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Add Address</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; padding: 24px; }
+    .wrap { max-width: 720px; margin: 0 auto; }
+    .field { margin-bottom: 14px; }
+    .label { display:block; font-weight: 600; margin-bottom: 6px; }
+    .input, .select { width: 100%; padding: 10px 12px; border: 1px solid #d0d7de; border-radius: 8px; }
+    .errorlist { color: #b42318; margin: 6px 0 0; font-size: .9rem; list-style: disc; padding-left: 18px; }
+    .help { color: #6b7280; font-size: .85rem; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .actions { margin-top: 16px; display: flex; gap: 10px; align-items: center; }
+    .btn-primary { background:#0d6efd; color:#fff; border:0; padding:10px 14px; border-radius:8px; cursor:pointer; }
+    .btn-link { background:none; border:0; color:#0d6efd; cursor:pointer; text-decoration:underline; padding:0; }
+    .alert { background:#fff7ed; border:1px solid #fed7aa; color:#9a3412; padding:10px 12px; border-radius:8px; margin-bottom:14px; }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <h2>Add Address</h2>
+
+    {# Optional non-field errors from a Django form in context #}
+    {% if form and form.non_field_errors %}
+      <div class="alert">
+        {% for e in form.non_field_errors %}{{ e }}{% if not forloop.last %}<br />{% endif %}{% endfor %}
+      </div>
+    {% endif %}
+
+    <form method="post" action="#" novalidate>
+      {% csrf_token %}
+
+      <div class="field">
+        <label class="label" for="id_recipient_name">Recipient name</label>
+        <input class="input" type="text" id="id_recipient_name" name="recipient_name"
+               value="{% if form %}{{ form.recipient_name.value|default_if_none:'' }}{% else %}{{ recipient_name|default:'' }}{% endif %}" />
+        {% if form and form.recipient_name.errors %}
+          <ul class="errorlist">{% for e in form.recipient_name.errors %}<li>{{ e }}</li>{% endfor %}</ul>
+        {% endif %}
+      </div>
+
+      <div class="field">
+        <label class="label" for="id_address_line1">Address line 1</label>
+        <input class="input" type="text" id="id_address_line1" name="address_line1"
+               value="{% if form %}{{ form.address_line1.value|default_if_none:'' }}{% else %}{{ address_line1|default:'' }}{% endif %}" />
+        {% if form and form.address_line1.errors %}
+          <ul class="errorlist">{% for e in form.address_line1.errors %}<li>{{ e }}</li>{% endfor %}</ul>
+        {% endif %}
+      </div>
+
+      <div class="field">
+        <label class="label" for="id_address_line2">Address line 2 <span class="help">(optional)</span></label>
+        <input class="input" type="text" id="id_address_line2" name="address_line2"
+               value="{% if form %}{{ form.address_line2.value|default_if_none:'' }}{% else %}{{ address_line2|default:'' }}{% endif %}" />
+        {% if form and form.address_line2.errors %}
+          <ul class="errorlist">{% for e in form.address_line2.errors %}<li>{{ e }}</li>{% endfor %}</ul>
+        {% endif %}
+      </div>
+
+      <div class="row">
+        <div class="field">
+          <label class="label" for="id_city">City</label>
+          <input class="input" type="text" id="id_city" name="city"
+                 value="{% if form %}{{ form.city.value|default_if_none:'' }}{% else %}{{ city|default:'' }}{% endif %}" />
+          {% if form and form.city.errors %}
+            <ul class="errorlist">{% for e in form.city.errors %}<li>{{ e }}</li>{% endfor %}</ul>
+          {% endif %}
+        </div>
+        <div class="field">
+          <label class="label" for="id_state">State / Province</label>
+          <input class="input" type="text" id="id_state" name="state"
+                 value="{% if form %}{{ form.state.value|default_if_none:'' }}{% else %}{{ state|default:'' }}{% endif %}" />
+          {% if form and form.state.errors %}
+            <ul class="errorlist">{% for e in form.state.errors %}<li>{{ e }}</li>{% endfor %}</ul>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="field">
+          <label class="label" for="id_postal_code">Postal code</label>
+          <input class="input" type="text" id="id_postal_code" name="postal_code"
+                 value="{% if form %}{{ form.postal_code.value|default_if_none:'' }}{% else %}{{ postal_code|default:'' }}{% endif %}" />
+          {% if form and form.postal_code.errors %}
+            <ul class="errorlist">{% for e in form.postal_code.errors %}<li>{{ e }}</li>{% endfor %}</ul>
+          {% endif %}
+        </div>
+        <div class="field">
+          <label class="label" for="id_country">Country</label>
+          <input class="input" type="text" id="id_country" name="country"
+                 value="{% if form %}{{ form.country.value|default_if_none:'' }}{% else %}{{ country|default:'' }}{% endif %}" />
+          {% if form and form.country.errors %}
+            <ul class="errorlist">{% for e in form.country.errors %}<li>{{ e }}</li>{% endfor %}</ul>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="label" for="id_phone">Phone</label>
+        <input class="input" type="text" id="id_phone" name="phone"
+               value="{% if form %}{{ form.phone.value|default_if_none:'' }}{% else %}{{ phone|default:'' }}{% endif %}" />
+        {% if form and form.phone.errors %}
+          <ul class="errorlist">{% for e in form.phone.errors %}<li>{{ e }}</li>{% endfor %}</ul>
+        {% endif %}
+      </div>
+
+      <div class="actions">
+        <button type="submit" class="btn-primary" onclick="this.disabled=true; this.form.submit();">Save Address</button>
+        <a class="btn-link" href="javascript:history.back()">Cancel</a>
+      </div>
+    </form>
+  </main>
+</body>
+</html>

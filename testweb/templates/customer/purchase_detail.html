@@ -1,0 +1,503 @@
+{% comment %} {% extends "base.html" %}
+{% block content %}
+  <h2>Purchase: {{ purchase.invoice_number }}</h2>
+  <p>Supplier: {{ purchase.supplier }}</p>
+  <p>Date: {{ purchase.date }}</p>
+  <p>Amount: {{ purchase.amount }}</p>
+
+  {% if purchase.pdf %}
+    <p><a href="{{ purchase.pdf.url }}" download>Download PDF</a></p>
+
+    <!-- Inline preview -->
+    <iframe src="{{ purchase.pdf.url }}" width="100%" height="700px"></iframe>
+  {% else %}
+    <p>No PDF uploaded.</p>
+  {% endif %}
+
+  <p><a href="{% url 'purchase_edit' purchase.pk %}">Edit</a></p>
+  <p><a href="{% url 'purchase_list' %}">Back to list</a></p>
+{% endblock %}
+
+
+
+
+ <div class="purchase-container">
+        <header>
+            <div class="header-title">
+                <i class="fas fa-file-invoice"></i>
+                <h1>Purchase:<span class="invoice-number">{{ purchase.invoice_number }}</span></h1>
+            </div>
+            <a href="#" class="btn btn-outline">
+                <i class="fas fa-arrow-left"></i> Back to List
+            </a>
+        </header>
+        
+        <div class="content">
+            <div class="purchase-info">
+                <div class="info-group">
+                    <div class="info-label">
+                        <i class="fas fa-tag"></i> Invoice Number
+                    </div>
+                    <div class="info-value">INV-2023-0876</div>
+                </div>
+                
+                <div class="info-group">
+                    <div class="info-label">
+                        <i class="fas fa-truck"></i> Supplier
+                    </div>
+                    <div class="info-value">{{ purchase.supplier }}</div>
+                </div>
+                
+                <div class="info-group">
+                    <div class="info-label">
+                        <i class="fas fa-calendar"></i> Date
+                    </div>
+                    <div class="info-value">October 15, 2023</div>
+                </div>
+                
+                <div class="info-group">
+                    <div class="info-label">
+                        <i class="fas fa-money-bill-wave"></i> Amount
+                    </div>
+                    <div class="info-value">$1,245.75</div>
+                </div>
+                
+                <div class="info-group">
+                    <div class="info-label">
+                        <i class="fas fa-file-alt"></i> Description
+                    </div>
+                    <div class="info-value">Office supplies and equipment</div>
+                </div>
+                
+                <div class="info-group">
+                    <div class="info-label">
+                        <i class="fas fa-info-circle"></i> Status
+                    </div>
+                    <div class="info-value">
+                        <span class="status-badge" style="background: #4CAF50; color: white; padding: 4px 12px; border-radius: 20px; font-size: 14px;">
+                            Paid
+                        </span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="pdf-section">
+                <div class="pdf-actions">
+                    <a href="#" class="btn btn-primary">
+                        <i class="fas fa-download"></i> Download PDF
+                    </a>
+                    <button onclick="printPdf()" class="btn btn-secondary">
+                        <i class="fas fa-print"></i> Print PDF
+                    </button>
+                    <button onclick="sharePurchase()" class="btn btn-outline">
+                        <i class="fas fa-share-alt"></i> Share
+                    </button>
+                </div>
+                
+                <div class="pdf-preview">
+                    <div class="loading" id="pdfLoading">
+                        <div class="spinner"></div>
+                        <p>Loading document preview...</p>
+                    </div>
+                    <iframe src="about:blank" id="pdfFrame" style="display: none;"></iframe>
+                </div>
+            </div>
+        </div>
+        
+        <div class="actions">
+            <a href="#" class="btn btn-primary">
+                <i class="fas fa-edit"></i> Edit Purchase
+            </a>
+            <button onclick="archivePurchase()" class="btn btn-outline">
+                <i class="fas fa-archive"></i> Archive
+            </button>
+            <button onclick="duplicatePurchase()" class="btn btn-outline">
+                <i class="fas fa-copy"></i> Duplicate
+            </button>
+        </div>
+    </div>
+    
+    <div class="notification" id="notification">
+        <i class="fas fa-check-circle"></i>
+        <span>Purchase details copied to clipboard!</span>
+    </div> {% endcomment %}
+
+    <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Purchase: {{ purchase.invoice_number }}</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4eaf2 100%);
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .purchase-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+        
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 25px 30px;
+            background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+            color: white;
+        }
+        
+        .header-title {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .header-title i {
+            font-size: 32px;
+        }
+        
+        .header-title h1 {
+            font-weight: 600;
+            font-size: 28px;
+        }
+        
+        .invoice-number {
+            font-weight: 300;
+            margin-left: 10px;
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        .btn-outline {
+            background: transparent;
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+        }
+        
+        .btn-outline:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: white;
+        }
+        
+        .btn-primary {
+            background: #4e73df;
+            color: white;
+            border: none;
+        }
+        
+        .btn-primary:hover {
+            background: #3a56c4;
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+            border: none;
+        }
+        
+        .btn-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+        }
+        
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1.5fr;
+            gap: 30px;
+            padding: 30px;
+        }
+        
+        @media (max-width: 900px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .purchase-info {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .info-group {
+            background: #f8f9fc;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.03);
+        }
+        
+        .info-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            color: #6e707e;
+            margin-bottom: 8px;
+        }
+        
+        .info-label i {
+            width: 20px;
+        }
+        
+        .info-value {
+            font-size: 18px;
+            color: #2e2e2e;
+            font-weight: 500;
+            margin-left: 30px;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .pdf-section {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .pdf-actions {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .pdf-preview {
+            border: 1px solid #e3e6f0;
+            border-radius: 8px;
+            overflow: hidden;
+            height: 600px;
+            position: relative;
+        }
+        
+        .loading {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            gap: 15px;
+            color: #6e707e;
+        }
+        
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #4e73df;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        
+        .actions {
+            display: flex;
+            gap: 15px;
+            padding: 20px 30px;
+            background: #f8f9fc;
+            border-top: 1px solid #e3e6f0;
+            flex-wrap: wrap;
+        }
+        
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #4e73df;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s;
+        }
+        
+        .notification.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        
+        @media (max-width: 600px) {
+            header {
+                flex-direction: column;
+                gap: 15px;
+                align-items: flex-start;
+            }
+            
+            .pdf-actions, .actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .btn {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="purchase-container">
+        <header>
+            <div class="header-title">
+                <i class="fas fa-file-invoice"></i>
+                <h1>Purchase: <span class="invoice-number">{{ purchase.invoice_number }}</span></h1>
+            </div>
+             <a href="{% url 'admin' %}" class="btn btn-secondary mt-3">← Back to Dashboard</a>
+            </a>
+        </header>
+        
+        <div class="content">
+            <div class="purchase-info">
+                <div class="info-group">
+                    <div class="info-label">
+                        <i class="fas fa-tag"></i> Invoice Number
+                    </div>
+                    <div class="info-value">{{ purchase.invoice_number }}</div>
+                </div>
+                
+                <div class="info-group">
+                    <div class="info-label">
+                        <i class="fas fa-truck"></i> Supplier
+                    </div>
+                    <div class="info-value">{{ purchase.supplier }}</div>
+                </div>
+                
+                <div class="info-group">
+                    <div class="info-label">
+                        <i class="fas fa-calendar"></i> Date
+                    </div>
+                    <div class="info-value">{{ purchase.date }}</div>
+                </div>
+                
+                <div class="info-group">
+                    <div class="info-label">
+                        <i class="fas fa-money-bill-wave"></i> Amount
+                    </div>
+                    <div class="info-value">${{ purchase.amount }}</div>
+                </div>
+                
+                <div class="info-group">
+                    <div class="info-label">
+                        <i class="fas fa-info-circle"></i> Status
+                    </div>
+                    
+                </div>
+            </div>
+            
+            <div class="pdf-section">
+                {% if purchase.pdf %}
+                <div class="pdf-actions">
+                    <a href="{{ purchase.pdf.url }}" download class="btn btn-primary">
+                        <i class="fas fa-download"></i> Download PDF
+                    </a>
+                    <button onclick="printPdf()" class="btn btn-secondary">
+                        <i class="fas fa-print"></i> Print PDF
+                    </button>
+                </div>
+                
+                <div class="pdf-preview">
+                    <div class="loading" id="pdfLoading">
+                        <div class="spinner"></div>
+                        <p>Loading document preview...</p>
+                    </div>
+                    <iframe src="{{ purchase.pdf.url }}#toolbar=0" id="pdfFrame" onload="pdfLoaded()"></iframe>
+                </div>
+                {% else %}
+                <div class="pdf-actions">
+                    <p>No PDF uploaded for this purchase.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="actions">
+            <a href="{% url 'purchase_edit' purchase.pk %}" class="btn btn-primary">
+                <i class="fas fa-edit"></i> Edit Purchase
+            </a>
+        </div>
+    </div>
+    
+    <div class="notification" id="notification">
+        <i class="fas fa-check-circle"></i>
+        <span>Purchase details copied to clipboard!</span>
+    </div>
+
+    <script>
+        function pdfLoaded() {
+            document.getElementById('pdfLoading').style.display = 'none';
+            document.getElementById('pdfFrame').style.display = 'block';
+        }
+        
+        function printPdf() {
+            const pdfUrl = "{{ purchase.pdf.url }}";
+            const printWindow = window.open(pdfUrl, '_blank');
+            printWindow.onload = function() {
+                printWindow.print();
+            };
+        }
+        
+        function showNotification() {
+            const notification = document.getElementById('notification');
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+        
+        // Simulate PDF loading for demo purposes
+        setTimeout(() => {
+            if (document.getElementById('pdfLoading')) {
+                document.getElementById('pdfLoading').style.display = 'none';
+                document.getElementById('pdfFrame').style.display = 'block';
+            }
+        }, 2000);
+    </script>
+</body>
+</html>

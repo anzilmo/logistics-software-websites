@@ -1,0 +1,81 @@
+{% extends 'main.html' %}
+{% load static %}
+
+{% block title %}Shipment List{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Shipment List</h2>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Suit Number</th>
+                <th>Customer</th>
+                <th>Package Type</th>
+                <th>Status</th>
+                <th>Created At</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for shipment in shipments %}
+            <tr class="{% if shipment.selected_courier and shipment.package_type == 'Single Package' %}table-success{% else %}table-danger{% endif %}">
+                <td>{{ shipment.suit_number }}</td>
+                <td>{{ shipment.customer }}</td>
+                <td>{{ shipment.package_type }}</td>
+                <td>{{ shipment.status }}</td>
+                <td>{{ shipment.created_at|date:"Y-m-d H:i" }}</td>
+                <td>
+                    <a href="{% url 'warehouse:shipment_detail' shipment.suit_number %}" class="btn btn-info btn-sm">View</a>
+                    <a href="{% url 'warehouse:shipment_update' shipment.pk %}" class="btn btn-warning btn-sm">Edit</a>
+                    <a href="{% url 'warehouse:shipment_delete' shipment.pk %}" class="btn btn-danger btn-sm">Delete</a>
+                    <a href="{% url 'warehouse:shipment_camera' shipment.suit_number %}" class="btn btn-primary btn-sm">Upload Photo</a>
+
+
+
+
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6" class="text-center">No shipments found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <hr>
+    <h3>Console Shipment List</h3>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Shipment Suit Number</th>
+                <th>Action</th>
+                <th>Note</th>
+                <th>Created By</th>
+                <th>Created At</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for console_shipment in console_shipments %}
+            <tr>
+                <td>{{ console_shipment.shipment.suit_number }}</td>
+                <td>{{ console_shipment.get_action_display }}</td>
+                <td>{{ console_shipment.note }}</td>
+                <td>{% if console_shipment.created_by %}{{ console_shipment.created_by.username }}{% else %}N/A{% endif %}</td>
+                <td>{{ console_shipment.created_at|date:"Y-m-d H:i" }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" class="text-center">No console shipments found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}
+
+
+
+

@@ -1,0 +1,96 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Membership Payment</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body{background:#f5eee7;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+  </style>
+</head>
+<body>
+<form method="post" class="container py-5">
+  {% csrf_token %}
+  <input type="hidden" name="plan" value="{{ selected_plan }}">
+  <input type="hidden" name="payment" id="payment-method-input" value="{% if DEMO_PAYMENTS %}demo{% else %}card{% endif %}">
+
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <h1 class="h4 mb-3">Checkout — {{ selected_tier.name }} ({{ selected_tier.billing_cycle }})</h1>
+      <p class="mb-4">Total today: <strong>{{ currency }} {{ plan_price }}</strong></p>
+
+      {% if messages %}
+        {% for m in messages %}
+          <div class="alert alert-{{ m.tags|default:'info' }}">{{ m }}</div>
+        {% endfor %}
+      {% endif %}
+
+      <div class="accordion mb-3" id="paymentAccordion">
+        {% if DEMO_PAYMENTS %}
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="headingDemo">
+            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDemo"
+                    aria-expanded="true" aria-controls="collapseDemo" data-method="demo">
+              Demo Payment (no real charge)
+            </button>
+          </h2>
+          <div id="collapseDemo" class="accordion-collapse collapse show" data-bs-parent="#paymentAccordion">
+            <div class="accordion-body">
+              <p class="text-muted mb-0">This simulates a successful payment. Dev only.</p>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="headingCard">
+            <button class="accordion-button {% if DEMO_PAYMENTS %}collapsed{% endif %}" type="button"
+                    data-bs-toggle="collapse" data-bs-target="#collapseCard"
+                    aria-expanded="{% if DEMO_PAYMENTS %}false{% else %}true{% endif %}" aria-controls="collapseCard" data-method="card">
+              Credit/Debit Card (disabled in demo)
+            </button>
+          </h2>
+          <div id="collapseCard" class="accordion-collapse collapse {% if not DEMO_PAYMENTS %}show{% endif %}" data-bs-parent="#paymentAccordion">
+            <div class="accordion-body">
+              <div class="alert alert-warning mb-0">No real gateway configured. Use Demo Payment.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <button id="subscribe-btn" class="btn btn-primary w-100" type="submit">Pay Now</button>
+      <a class="btn btn-link w-100 mt-2" href="{% url 'customer:membership_manage' %}">Back</a>
+    </div>
+  </div>
+</form>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+(function(){
+  const payInput = document.getElementById('payment-method-input');
+  const accordion = document.getElementById('paymentAccordion');
+  if (accordion) {
+    accordion.addEventListener('shown.bs.collapse', function (e) {
+      const btn = e.target.previousElementSibling?.querySelector('[data-method]');
+      if (btn && payInput) payInput.value = btn.getAttribute('data-method');
+    });
+    // init to whichever pane is open
+    const open = accordion.querySelector('.accordion-collapse.show');
+    if (open) {
+      const initBtn = open.previousElementSibling?.querySelector('[data-method]');
+      if (initBtn) payInput.value = initBtn.getAttribute('data-method');
+    }
+  }
+  // double-submit guard
+  const form = document.querySelector('form');
+  const subBtn = document.getElementById('subscribe-btn');
+  form?.addEventListener('submit', function(){
+    subBtn.disabled = true;
+    subBtn.textContent = 'Processing…';
+  });
+})();
+</script>
+</body>
+</html>

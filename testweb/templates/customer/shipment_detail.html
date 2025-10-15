@@ -1,0 +1,334 @@
+{% load static humanize %}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Choose Courier — {{ shipment.suit_number }}</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Custom CSS -->
+  <style>
+    .card { box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.075); border: 1px solid rgba(0,0,0,0.125); }
+    .table th { border-top: none; font-weight: 600; }
+    .btn { border-radius: 0.375rem; }
+    .border-warning { border-color: #ffc107 !important; }
+    .border-primary { border-color: #0d6efd !important; }
+    .modal-header { background-color: #f8f9fa; border-bottom: 1px solid #dee2e6; }
+    .modal-footer { border-top: 1px solid #dee2e6; }
+    .text-muted { color: #6c757d !important; }
+    .table-responsive { border-radius: 0.375rem; }
+  </style>
+</head>
+<body>
+  <div class="container py-4">
+    <a href="{% url 'customer:shipment_list' %}" class="btn btn-link mb-3">&larr; Back to my shipments</a>
+
+    <h1 class="h3 mb-3">
+      {% if suit_number %}
+        Shipments for suit {{ suit_number }}
+      {% else %}
+        Shipment {{ shipment.suit_number }}
+      {% endif %}
+      {% if current_tier %}
+      <h4>Membership: {{ current_tier.name }}</h4>
+      {% else %}
+      <h4>No Active Membership</h4>
+      {% endif %}
+      
+    </h1>
+
+    <!-- Multiple shipments table -->
+    {% if rows %}
+    <div class="card mb-4">
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-striped table-sm align-middle mb-0">
+            <thead class="table-light">
+              <tr>
+                <th>Suit / ID</th>
+                <th class="text-end">CBM</th>
+                <th class="text-end">Volume Wt</th>
+                <th class="text-end">Gross Wt</th>
+                <th class="text-end">Chargeable Wt</th>
+                <th class="text-end">Rate</th>
+                <th class="text-end">Price</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for row in rows %}
+              <tr>
+                <td>
+                  <strong>{{ row.shipment.suit_number }}</strong><br />
+                  <small class="text-muted">#{{ row.shipment.pk }}</small>
+                </td>
+                <td class="text-end">{{ row.cbm|default:"—" }}</td>
+                <td class="text-end">{{ row.volume_weight|default:"—" }}</td>
+                <td class="text-end">{{ row.gross_weight|default:"—" }}</td>
+                <td class="text-end">{{ row.chargeable_weight|default:"—" }}</td>
+                <td class="text-end">{% if row.rate is not None %}{{ row.rate|floatformat:0|intcomma }}{% else %}—{% endif %}</td>
+                <td class="text-end">{% if row.price is not None %}{{ row.price|intcomma }}{% else %}—{% endif %}</td>
+                <td class="text-end">
+                  <a class="btn btn-sm btn-outline-primary" href="{% url 'customer:shipment_detail' row.shipment.suit_number %}?single={{ row.shipment.pk }}">View</a>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+            <tfoot class="table-light">
+              <tr>
+                <th colspan="4" class="text-end">Totals:</th>
+                <td class="text-end">{{ total_cbm|default:"—" }}</td>
+                <td class="text-end">{{ total_volume_weight|default:"—" }}</td>
+                <td class="text-end">{{ total_gross_weight|default:"—" }}</td>
+                <td class="text-end">{{ total_chargeable_weight|default:"—" }}</td>
+                <td class="text-end">—</td>
+                <td class="text-end">—</td>
+                <td></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Single shipment view -->
+    {% if shipment %}
+    <div class="row g-3 mb-3">
+      <div class="col-md-8">
+        <div class="card mb-3">
+          <div class="card-body">
+            <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+              <div>
+                <h4 class="mb-1">
+                  {{ shipment.suit_number }}
+                  <small class="text-muted">(#{{ shipment.pk }})</small>
+                </h4>
+                <div class="small text-muted">Created {{ shipment.created_at|naturaltime }}</div>
+              </div>
+              {% if selected_courier_logo %}
+              <img src="{{ selected_courier_logo }}" alt="Courier logo" style="height:32px" />
+              {% endif %}
+            </div>
+
+            <div class="mt-3">
+              <span class="me-3"><strong>Status:</strong> {{ shipment.get_status_display }}</span>
+              {% if shipment.tracking_number %}
+              <span class="me-3"><strong>Tracking:</strong> {{ shipment.tracking_number }}</span>
+              {% endif %}
+              {% if shipment.selected_courier %}
+              <span class="me-3"><strong>Courier:</strong> {{ shipment.selected_courier.name }}</span>
+              {% endif %}
+              {% if shipment.warehouse %}
+              <span class="me-3"><strong>Warehouse:</strong> {{ shipment.warehouse }}</span>
+              {% endif %}
+              {% if shipment.estimated_delivery %}
+              <span class="me-3"><strong>ETA:</strong> {{ shipment.estimated_delivery }}</span>
+              {% endif %}
+            </div>
+
+            <div class="mt-3 row g-3">
+              <div class="col-sm-6">
+                <ul class="list-unstyled">
+                  <li><strong>CBM:</strong> {{ cbm|default:"—" }}</li>
+                  <li><strong>Volume weight:</strong> {{ volume_weight|default:"—" }}</li>
+                  <li><strong>Gross weight:</strong> {{ gross_weight|default:"—" }}</li>
+                  <li><strong>Chargeable weight:</strong> {{ chargeable_weight|default:"—" }}</li>
+                </ul>
+              </div>
+
+              <div class="col-sm-6">
+                <ul class="list-unstyled mb-0 small">
+                  <li><strong>Base rate:</strong> {% if rate %}{{ rate|intcomma }}{% else %}&mdash;{% endif %}</li>
+                  <li><strong>Base price:</strong> {% if price %}{{ price|intcomma }}{% else %}&mdash;{% endif %}</li>
+                </ul>
+              </div>
+            </div>
+
+            
+
+            {% if silver_price or gold_price or platinum_price %}
+            <div class="mt-3">
+              <h5 class="h6">Membership pricing (based on base price)</h5>
+              <div class="row g-2">
+                <div class="col-sm-4">
+                  <div class="card h-100">
+                    <div class="card-body text-center py-3">
+                      <div class="fw-semibold">Silver</div>
+                      <div class="mb-1">{% if silver_price %}{{ silver_price|intcomma }}{% else %}&mdash;{% endif %}</div>
+                      <small class="text-muted">Basic</small>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-sm-4">
+                  <div class="card h-100 border-warning">
+                    <div class="card-body text-center py-3">
+                      <div class="fw-semibold">Gold</div>
+                      <div class="mb-1">{% if gold_price %}{{ gold_price|intcomma }}{% else %}&mdash;{% endif %}</div>
+                      <small class="text-muted">10% + 8</small>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-sm-4">
+                  <div class="card h-100 border-primary">
+                    <div class="card-body text-center py-3">
+                      <div class="fw-semibold">Platinum</div>
+                      <div class="mb-1">{% if platinum_price %}{{ platinum_price|intcomma }}{% else %}&mdash;{% endif %}</div>
+                      <small class="text-muted">25% + 15</small>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {% endif %}
+
+            <div class="mt-3 d-flex flex-wrap gap-2">
+              {% if request.user.is_staff or shipment.owner == request.user %}
+                {% if shipment.status == 'pending' %}
+                <a href="{% url 'customer:address_create' shipment.pk %}" class="btn btn-primary">Add delivery address</a>
+                {% endif %}
+                {% if shipment.status == 'pending' or shipment.status == 'accepted' %}
+                <a href="{% url 'customer:payment_process' shipment.pk %}" class="btn btn-success">Pay &amp; Confirm</a>
+                {% endif %}
+                <a href="{% url 'customer:shipment_history' shipment.pk %}" class="btn btn-outline-secondary">View history</a>
+                <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editShipmentModal">Edit Shipment</button>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+
+        <!-- Tracking history -->
+        <div class="card">
+          <div class="card-header"><strong>Tracking history</strong></div>
+          <div class="card-body">
+            {% with events=shipment.history.all %}
+              {% if events %}
+              <ul class="list-unstyled mb-0">
+                {% for ev in events %}
+                <li class="mb-2">
+                  <div><small class="text-muted">{{ ev.created_at|naturaltime }}</small></div>
+                  <div><strong>{{ ev.status }}</strong> — {{ ev.message }}</div>
+                  {% if ev.location %}<div class="text-muted small">{{ ev.location }}</div>{% endif %}
+                </li>
+                {% endfor %}
+              </ul>
+              {% else %}
+              <p class="text-muted mb-0">No tracking events yet.</p>
+              {% endif %}
+            {% endwith %}
+          </div>
+        </div>
+      </div>
+
+      <aside class="col-md-4">
+        <div class="card mb-3">
+          <div class="card-body">
+            <h5 class="card-title">Summary</h5>
+            <p class="mb-1"><strong>Price:</strong> {% if price %}{{ price|intcomma }}{% else %}&mdash;{% endif %}</p>
+            <p class="mb-1"><strong>Chargeable weight:</strong> {{ chargeable_weight|default:"—" }}</p>
+            <p class="mb-1"><strong>Courier:</strong> {% if shipment.selected_courier %}{{ shipment.selected_courier.name }}{% else %}&mdash;{% endif %}</p>
+            <hr />
+            <h6 class="h6">Delivery address</h6>
+            {% if shipment.delivery_address %}
+            <p class="small mb-0">
+              {{ shipment.delivery_address.recipient_name }}<br />
+              {{ shipment.delivery_address.address_line1 }}{% if shipment.delivery_address.address_line2 %}, {{ shipment.delivery_address.address_line2 }}{% endif %}<br />
+              {{ shipment.delivery_address.city }}{% if shipment.delivery_address.state %}, {{ shipment.delivery_address.state }}{% endif %}<br />
+              {{ shipment.delivery_address.country }}<br />
+              {{ shipment.delivery_address.phone }}
+            </p>
+            <a href="{% url 'customer:address_create' shipment.pk %}" class="btn btn-sm btn-link mt-2">Edit address</a>
+            {% else %}
+            <p class="text-muted small">No delivery address provided.</p>
+            <a href="{% url 'customer:address_create' shipment.pk %}" class="btn btn-sm btn-primary mt-2">Add address</a>
+            {% endif %}
+            <hr />
+            <h6 class="h6">Payment</h6>
+            {% if shipment.payment %}
+            <p class="small mb-0">Status: <strong>{{ shipment.payment.get_status_display }}</strong></p>
+            {% if shipment.payment.status == 'failed' %}
+            <a href="{% url 'customer:payment_process' shipment.pk %}" class="btn btn-sm btn-warning mt-2">Retry payment</a>
+            {% endif %}
+            {% else %}
+            <p class="small text-muted">No payment yet.</p>
+            <a href="{% url 'customer:payment_process' shipment.pk %}" class="btn btn-sm btn-success mt-2">Pay now</a>
+            {% endif %}
+          </div>
+        </div>
+
+        {% if request.user.is_staff %}
+        <div class="card mb-3">
+          <div class="card-body">
+            <h6 class="h6">Staff actions</h6>
+            <a href="{% url 'staff:shipment_edit' shipment.pk %}" class="btn btn-sm btn-outline-secondary mb-1">Edit shipment</a><br />
+            <a href="{% url 'staff:shipment_accept' shipment.pk %}" class="btn btn-sm btn-outline-success mb-1">Mark accepted</a>
+          </div>
+        </div>
+        {% endif %}
+      </aside>
+    </div>
+    {% endif %}
+
+    <!-- Edit Modal (POST with CSRF) -->
+    <div class="modal fade" id="editShipmentModal" tabindex="-1" aria-labelledby="editShipmentModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <form class="modal-content" method="post" action="#">
+          {% csrf_token %}
+          <div class="modal-header">
+            <h5 class="modal-title" id="editShipmentModalLabel">Edit Shipment Details</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label for="trackingNumber" class="form-label">Tracking Number</label>
+              <input type="text" class="form-control" id="trackingNumber" name="tracking_number" value="{{ shipment.tracking_number|default:'' }}" />
+            </div>
+            <div class="mb-3">
+              <label for="status" class="form-label">Status</label>
+              <select class="form-select" id="status" name="status">
+                <option value="pending" {% if shipment.status == 'pending' %}selected{% endif %}>Pending</option>
+                <option value="accepted" {% if shipment.status == 'accepted' %}selected{% endif %}>Accepted</option>
+                <option value="in_transit" {% if shipment.status == 'in_transit' %}selected{% endif %}>In Transit</option>
+                <option value="delivered" {% if shipment.status == 'delivered' %}selected{% endif %}>Delivered</option>
+              </select>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary">Save changes</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Custom JavaScript -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const editForm = document.querySelector('#editShipmentModal form');
+      if (editForm) {
+        editForm.addEventListener('submit', function(e) {
+          const trackingNumber = document.getElementById('trackingNumber').value;
+          const status = document.getElementById('status').value;
+          if (trackingNumber.trim() === '' && status !== 'delivered') {
+            e.preventDefault();
+            alert('Please enter a tracking number or select delivered status');
+            return false;
+          }
+        });
+      }
+
+      const alerts = document.querySelectorAll('.alert');
+      alerts.forEach(function(alert) {
+        setTimeout(function() {
+          const bsAlert = new bootstrap.Alert(alert);
+          bsAlert.close();
+        }, 5000);
+      });
+    });
+  </script>
+</body>
+</html>

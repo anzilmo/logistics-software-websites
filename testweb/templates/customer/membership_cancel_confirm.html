@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Cancel membership</h1>
+<p>You’re on <strong>{{ current.plan.name }}</strong>. Cancel now?</p>
+<form method="post">
+  {% csrf_token %}
+  <button class="btn btn-danger">Confirm cancel</button>
+  <a class="btn btn-outline-secondary" href="{% url 'customer:membership_manage' %}">Never mind</a>
+</form>
+{% endblock %}

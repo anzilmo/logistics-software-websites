@@ -1,0 +1,40 @@
+{% extends 'main.html' %}
+{% block title %}Shipment List{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Shipments Dashboard</h2>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Suit Number</th>
+                <th>Customer</th>
+                <th>Status</th>
+                <th>Selected Courier</th>
+                <th>Created At</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for shipment in shipments %}
+            <tr>
+                <td>{{ shipment.suit_number }}</td>
+                <td>{{ shipment.customer }}</td>
+                <td>{{ shipment.status }}</td>
+                <td>
+                    {% with shipment.courierchoice_set.first as choice %}
+                        {% if choice %}
+                            {{ choice.courier.name }}
+                        {% else %}
+                            Not selected
+                        {% endif %}
+                    {% endwith %}
+                </td>
+                <td>{{ shipment.created_at|date:"Y-m-d H:i" }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="5" class="text-center">No shipments found.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

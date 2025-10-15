@@ -1,0 +1,17 @@
+{% extends 'ad_navbar.html' %}
+
+{% load static %}
+
+{% block title %}Create Single Shipment{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <h2>Create Single Shipment</h2>
+  <p>Click the button below to create a new single shipment.</p>
+  <form method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-primary">Create Single Shipment</button>
+  </form>
+  <a href="{% url 'customer:console_list' %}" class="btn btn-secondary mt-3">Back to Console</a>
+</div>
+{% endblock %}
