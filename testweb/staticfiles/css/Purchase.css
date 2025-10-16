@@ -1,0 +1,195 @@
+/* Container & Body */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Filters */
+.filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.filter-group label {
+    font-weight: 500;
+    color: #555;
+}
+
+.filter-group select,
+.filter-group input {
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+}
+
+.search-box {
+    position: relative;
+}
+
+.search-box input {
+    padding-left: 30px;
+}
+
+.search-icon {
+    position: absolute;
+    left: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #888;
+}
+
+/* Purchases Table */
+.purchases-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+
+.purchases-table th, 
+.purchases-table td {
+    padding: 12px 15px;
+    border-bottom: 1px solid #eee;
+    text-align: left;
+}
+
+.purchases-table th {
+    background-color: #f8f9fc;
+    color: #4e73df;
+    font-weight: 600;
+}
+
+.purchases-table tr:hover {
+    background-color: #f1f3f6;
+}
+
+.invoice-number {
+    color: #4e73df;
+    font-weight: 500;
+    text-decoration: none;
+}
+
+.invoice-number:hover {
+    text-decoration: underline;
+}
+
+.status {
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.status-paid {
+    background: #e8f6f0;
+    color: #1cc88a;
+}
+
+.status-pending {
+    background: #fff6e8;
+    color: #f6c23e;
+}
+
+/* Actions */
+.actions {
+    display: flex;
+    gap: 8px;
+}
+
+.action-btn {
+    padding: 6px 8px;
+    border-radius: 6px;
+    background-color: #f8f9fc;
+    border: none;
+    cursor: pointer;
+    color: #4e73df;
+    transition: all 0.2s;
+}
+
+.action-btn:hover {
+    background-color: #e8f4ff;
+}
+
+/* Pagination */
+.pagination {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 20px;
+}
+
+.pagination-btn {
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid #e3e6f0;
+    background-color: white;
+    color: #4e73df;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.pagination-btn.active {
+    background-color: #4e73df;
+    color: white;
+    border-color: #4e73df;
+}
+
+.pagination-btn:hover:not(.active) {
+    background-color: #f8f9fc;
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 50px 20px;
+    color: #6e707e;
+}
+
+.empty-state i {
+    font-size: 60px;
+    margin-bottom: 20px;
+    color: #dee2e6;
+}
+
+.empty-state p {
+    font-size: 18px;
+    margin-bottom: 15px;
+}
+
+.btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 18px;
+    border-radius: 6px;
+    background-color: #4e73df;
+    color: white;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.btn-primary:hover {
+    background-color: #2e59d9;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .filters {
+        flex-direction: column;
+    }
+    
+    .purchases-table {
+        display: block;
+        overflow-x: auto;
+    }
+}
