@@ -16,6 +16,7 @@ import os
 import logging
 from celery import Celery
 
+
 logger = logging.getLogger(__name__)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -30,7 +31,8 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'your-production-secret-key-here-chang
 logger.info(f"SECRET_KEY set: {'YES' if 'SECRET_KEY' in os.environ else 'NO (using default)'}")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
+logger.info(f"DEBUG mode: {DEBUG}")
 
 ALLOWED_HOSTS = ["127.0.0.1", "localhost", ".vercel.app", "logistics-software-websites.vercel.app"]
 
@@ -100,12 +102,14 @@ logger.info(f"DATABASE_URL in os.environ: {'YES' if 'DATABASE_URL' in os.environ
 if 'DATABASE_URL' in os.environ:
     logger.info(f"DATABASE_URL value (masked): {os.environ['DATABASE_URL'][:20]}...")
     try:
+        import dj_database_url
         logger.info("dj_database_url imported successfully")
-        DATABASES['default'] = config(conn_max_age=600, ssl_require=True)
+        DATABASES['default'] = dj_database_url.config(conn_max_age=600, ssl_require=True)
         logger.info("Database URL configured successfully")
         logger.info(f"Configured DATABASES: {DATABASES['default']}")
     except ImportError as e:
         logger.error(f"Failed to import dj_database_url: {e}")
+        logger.error("This is likely the cause of the crash - dj_database_url not available")
     except Exception as e:
         logger.error(f"Failed to configure database URL: {e}")
         logger.error(f"DATABASE_URL full: {os.environ['DATABASE_URL']}")
