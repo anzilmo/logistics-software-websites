@@ -40,3 +40,4 @@ virtualenvwrapper==6.1.1
 virtualenvwrapper-win==1.2.7
 wcwidth==0.2.14
 whitenoise==6.11.0
+dj-database-url==3.0.1

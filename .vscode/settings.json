@@ -1,4 +1,5 @@
 {
+    "python.defaultInterpreterPath": "./myenv/Scripts/python.exe",
     "python.analysis.extraPaths": [
         "./testweb/testweb",
         "./testweb"
