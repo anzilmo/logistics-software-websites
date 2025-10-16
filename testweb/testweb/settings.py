@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
+from logging import config
 from pathlib import Path
 import os
 import logging
@@ -25,13 +26,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-^(1%_)qi9j*=1$a%lxicx6*4yc1(-%ei2nef&9qw-j5@x)9mzz')
+SECRET_KEY = os.environ.get('SECRET_KEY', 'your-production-secret-key-here-change-this')
 logger.info(f"SECRET_KEY set: {'YES' if 'SECRET_KEY' in os.environ else 'NO (using default)'}")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["127.0.0.1", ".vercel.app", "logistics-software-websites.vercel.app"]
+ALLOWED_HOSTS = ["127.0.0.1", "localhost", ".vercel.app", "logistics-software-websites.vercel.app"]
 
 
 # Application definition
@@ -92,7 +93,26 @@ DATABASES = {
     }
 }
 
-logger.info(f"Database configuration: ENGINE={DATABASES['default']['ENGINE']}, NAME={DATABASES['default']['NAME']}")
+
+
+# Override database for production if DATABASE_URL is set
+logger.info(f"DATABASE_URL in os.environ: {'YES' if 'DATABASE_URL' in os.environ else 'NO'}")
+if 'DATABASE_URL' in os.environ:
+    logger.info(f"DATABASE_URL value (masked): {os.environ['DATABASE_URL'][:20]}...")
+    try:
+        logger.info("dj_database_url imported successfully")
+        DATABASES['default'] = config(conn_max_age=600, ssl_require=True)
+        logger.info("Database URL configured successfully")
+        logger.info(f"Configured DATABASES: {DATABASES['default']}")
+    except ImportError as e:
+        logger.error(f"Failed to import dj_database_url: {e}")
+    except Exception as e:
+        logger.error(f"Failed to configure database URL: {e}")
+        logger.error(f"DATABASE_URL full: {os.environ['DATABASE_URL']}")
+else:
+    logger.info("DATABASE_URL not set, using default SQLite configuration")
+
+logger.info(f"Final database configuration: ENGINE={DATABASES['default']['ENGINE']}, NAME={DATABASES['default']['NAME']}")
 
 
 # Password validation
