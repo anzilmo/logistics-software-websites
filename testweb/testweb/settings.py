@@ -12,7 +12,11 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 import os
+import logging
 from celery import Celery
+
+logger = logging.getLogger(__name__)
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -21,7 +25,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-^(1%_)qi9j*=1$a%lxicx6*4yc1(-%ei2nef&9qw-j5@x)9mzz'
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-^(1%_)qi9j*=1$a%lxicx6*4yc1(-%ei2nef&9qw-j5@x)9mzz')
+logger.info(f"SECRET_KEY set: {'YES' if 'SECRET_KEY' in os.environ else 'NO (using default)'}")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -86,6 +91,8 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+
+logger.info(f"Database configuration: ENGINE={DATABASES['default']['ENGINE']}, NAME={DATABASES['default']['NAME']}")
 
 
 # Password validation
@@ -155,5 +162,8 @@ SITE_URL = "http://127.0.0.1:8000"
 # }
 
 
-CELERY_BROKER_URL = "redis://localhost:6379/0"
-CELERY_RESULT_BACKEND = "redis://localhost:6379/1"
+CELERY_BROKER_URL = os.environ.get('REDIS_URL', "redis://localhost:6379/0")
+CELERY_RESULT_BACKEND = os.environ.get('REDIS_URL', "redis://localhost:6379/1")
+
+logger.info(f"Celery broker URL: {CELERY_BROKER_URL}")
+logger.info(f"Celery result backend: {CELERY_RESULT_BACKEND}")
