@@ -12,8 +12,26 @@ def create_consolidation_table_if_not_exists(apps, schema_editor):
     if table_name not in connection.introspection.table_names():
         # Table doesn't exist, create it
         with connection.schema_editor() as schema_editor_inner:
-            model = apps.get_model('customer', 'Consolidation')
-            schema_editor_inner.create_model(model)
+            # Create the table manually since the model exists
+            schema_editor_inner.execute("""
+                CREATE TABLE customer_consolidation (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    user_id INTEGER NOT NULL REFERENCES auth_user(id),
+                    total_cbm DECIMAL(12,4) NOT NULL DEFAULT 0,
+                    total_volume_weight DECIMAL(12,3) NOT NULL DEFAULT 0,
+                    total_gross_weight DECIMAL(12,3) NOT NULL DEFAULT 0,
+                    chargeable_weight DECIMAL(12,3) NOT NULL DEFAULT 0,
+                    chargeable_basis VARCHAR(32) NOT NULL DEFAULT 'volume',
+                    price DECIMAL(12,2) NOT NULL DEFAULT 0,
+                    currency VARCHAR(8) NOT NULL DEFAULT 'USD',
+                    shipments_count INTEGER UNSIGNED NOT NULL DEFAULT 0,
+                    status VARCHAR(16) NOT NULL DEFAULT 'confirmed',
+                    selected_courier_id INTEGER NULL REFERENCES warehouse_courier(id),
+                    selected_rate_id INTEGER NULL REFERENCES customer_courierrate(id),
+                    selected_price DECIMAL(12,2) NULL,
+                    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+                );
+            """)
 
 
 def create_consolidationitem_table_if_not_exists(apps, schema_editor):
@@ -22,8 +40,14 @@ def create_consolidationitem_table_if_not_exists(apps, schema_editor):
     if table_name not in connection.introspection.table_names():
         # Table doesn't exist, create it
         with connection.schema_editor() as schema_editor_inner:
-            model = apps.get_model('customer', 'ConsolidationItem')
-            schema_editor_inner.create_model(model)
+            # Create the table manually since the model exists
+            schema_editor_inner.execute("""
+                CREATE TABLE customer_consolidationitem (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    consolidation_id INTEGER NOT NULL REFERENCES customer_consolidation(id),
+                    shipment_id INTEGER NOT NULL REFERENCES warehouse_shipment(id)
+                );
+            """)
 
 
 def create_consoleshipment_table_if_not_exists(apps, schema_editor):
@@ -32,8 +56,17 @@ def create_consoleshipment_table_if_not_exists(apps, schema_editor):
     if table_name not in connection.introspection.table_names():
         # Table doesn't exist, create it
         with connection.schema_editor() as schema_editor_inner:
-            model = apps.get_model('customer', 'ConsoleShipment')
-            schema_editor_inner.create_model(model)
+            # Create the table manually since the model exists
+            schema_editor_inner.execute("""
+                CREATE TABLE customer_consoleshipment (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    shipment_id INTEGER NOT NULL REFERENCES warehouse_shipment(id),
+                    action VARCHAR(32) NOT NULL,
+                    note TEXT NOT NULL DEFAULT '',
+                    created_by_id INTEGER NULL REFERENCES auth_user(id),
+                    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+                );
+            """)
 
 
 class Migration(migrations.Migration):
